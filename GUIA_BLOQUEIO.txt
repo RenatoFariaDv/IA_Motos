@@ -1,0 +1,95 @@
+🛡️ GUIA: Como Contornar o Bloqueio do WebMotors
+
+O WebMotors usa PerimeterX CAPTCHA para bloquear bots. O script foi atualizado para maximizar
+o stealth, mas ainda pode encontrar bloqueios.
+
+═══════════════════════════════════════════════════════════════════════════════
+
+OPÇÃO 1: Usar o Script Com Resolução Manual (MAIS SIMPLES)
+───────────────────────────────────────────────────────────
+
+Como funciona:
+  1. Execute: python teste_webmotors_motos.py
+  2. Se aparecer o CAPTCHA, resolva manualmente no navegador
+  3. O script detectará quando o CAPTCHA foi superado
+  4. Continuará automaticamente
+
+Vantagens:
+  ✓ Funciona com a maioria dos casos
+  ✓ Simples de usar
+  ✓ Nenhuma dependência extra
+
+Desvantagens:
+  ✗ Requer intervenção manual periodicamente
+  ✗ Apenas funciona para o primeiro acesso/sessão
+
+
+OPÇÃO 2: Usar Proxy/VPN (MELHOR LONGO PRAZO)
+─────────────────────────────────────────────
+
+Como funciona:
+  1. Configure variável de ambiente: PROXY_WEBMOTORS=http://IP:PORTA
+  2. Ou adicione ao .env: PROXY_WEBMOTORS=http://proxy.com:8080
+  3. Execute o script normalmente
+
+Exemplo:
+  # No .env:
+  PROXY_WEBMOTORS=http://161.129.70.25:3128
+
+Vantagens:
+  ✓ Muda o fingerprint de IP
+  ✓ Funciona sem intervalo manual
+  ✓ Mais difícil de detectar como bot
+
+Desvantagens:
+  ✗ Precisa de proxy confiável
+  ✗ Alguns proxies podem ser lentos
+
+
+OPÇÃO 3: Usar Sessão Persistente (MAIS ROBUSTO)
+───────────────────────────────────────────────
+
+Como funciona:
+  1. O script cria um perfil Chrome em chrome_profile/
+  2. Na primeira execução, você resolve o CAPTCHA manualmente
+  3. Nas próximas execuções, usa os cookies da sessão anterior
+  4. Geralmente não pede CAPTCHA novamente por dias
+
+Limitações:
+  ✗ Ainda pode expirar cookies
+  ✗ Pode ser detectado após muitos acessos
+
+
+OPÇÃO 4: Usar API ou Dados Públicos (ALTERNATIVA)
+──────────────────────────────────────────────────
+
+Pesquise se WebMotors possui:
+  - API pública
+  - Dados em XML sitemap
+  - Endpoint sem proteção
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+RECOMENDAÇÃO PARA SEU CASO:
+
+Se você quer o script rodando:
+  1. Comece com OPÇÃO 1 (manual) para testar
+  2. Se funcionar bem, passe para OPÇÃO 2 (proxy)
+  3. Se tiver muitos acessos, considere OPÇÃO 3 (sessão persistente)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+INSTRUÇÃO IMEDIATA:
+
+Execute o script com:
+  python teste_webmotors_motos.py
+
+O navegador abrirá. Se aparecer o CAPTCHA:
+  1. Clique no checkbox "Não sou um robô" se aparecer
+  2. Ou resolva o quebra-cabeça se pedir
+  3. Aguarde até 2-3 minutos
+  4. O script continuará automaticamente
+
+═══════════════════════════════════════════════════════════════════════════════
