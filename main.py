@@ -5,6 +5,8 @@ import re
 import requests
 from playwright.sync_api import sync_playwright
 from dotenv import load_dotenv
+from config_ml import mercado_livre_ativo
+from buscar_motos_ml import buscar_motos_ml
 
 load_dotenv()
 
@@ -297,6 +299,16 @@ def anuncio_compativel(anuncio: dict, filtros: list) -> tuple[bool, dict]:
     return False, {}
 
 
+def executar_mercado_livre():
+    if not mercado_livre_ativo():
+        print("[ML] Mercado Livre desativado")
+        return
+
+    try:
+        buscar_motos_ml()
+    except Exception as e:
+        print(f"[ML] Erro: {e}")
+
 def buscar_motos_sp():
     vistos = carregar_vistos()
     filtros = carregar_filtros()
@@ -475,5 +487,6 @@ if __name__ == "__main__":
 
     while True:
         buscar_motos_sp()
+        executar_mercado_livre()
         print(f"⏳ Aguardando {INTERVALO_SEGUNDOS // 60} minutos para a próxima rodada...")
         time.sleep(INTERVALO_SEGUNDOS)
