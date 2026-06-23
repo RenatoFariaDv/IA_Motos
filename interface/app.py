@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 import json
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 BASE_DIR = os.path.dirname(__file__)
@@ -74,6 +75,14 @@ def salvar_anuncios(anuncios):
         json.dump(anuncios, arquivo, indent=2, ensure_ascii=False)
 
 
+def parse_data_hora(valor):
+    """Tenta converter uma string data_hora no formato '%d/%m/%Y %H:%M:%S' para datetime.
+    Se falhar, retorna datetime.min."""
+    try:
+        return datetime.strptime(valor, "%d/%m/%Y %H:%M:%S")
+    except Exception:
+        return datetime.min
+
 def filtrar_anuncios(anuncios, termo: str = '', origem: str = 'all'):
     """Filtra os anúncios por texto e origem."""
     termo = termo.lower().strip()
@@ -100,20 +109,37 @@ def filtrar_anuncios(anuncios, termo: str = '', origem: str = 'all'):
 def index():
     """Rota principal do painel, com filtros e anúncios recentes."""
     filtros = carregar_filtros()
-    anuncios = carregar_anuncios()
+    anuncios_todos = carregar_anuncios()
 
     termo = request.args.get('q', '').strip()
-    origem = request.args.get('origem', 'all')
+    origem = request.args.get('origem', 'all').lower().strip()
 
-    anuncios_filtrados = filtrar_anuncios(anuncios, termo, origem)
+    # Se origem=webmotors, retorna lista vazia (ou poderia redirecionar para OLX)
+    if origem == 'webmotors':
+        anuncios_filtrados = []
+    else:
+        anuncios_filtrados = filtrar_anuncios(anuncios_todos, termo, 'all')
+        anuncios_filtrados.sort(key=lambda a: parse_data_hora(a.get("data_hora")), reverse=True)
+
+    # Separação OLX e Mercado Livre
+    anuncios_olx = [a for a in anuncios_todos if a.get('origem') != 'Mercado Livre']
+    anuncios_ml = [a for a in anuncios_todos if a.get('origem') == 'Mercado Livre']
+
+    total_olx = len(anuncios_olx)
 
     return render_template(
         'index.html',
         filtros=filtros,
         anuncios=anuncios_filtrados,
+        anuncios_olx=anuncios_olx,
+        anuncios_ml=anuncios_ml,
         total_anuncios=len(anuncios_filtrados),
         search_query=termo,
-        origem_atual=origem,
+        origem_atual='olx',
+        total_olx=total_olx,
+        total_webmotors=0,
+        total_combinado=total_olx,
+        webmotors_json_path=None,
     )
 
 
@@ -147,6 +173,13 @@ def excluir(indice):
         salvar_filtros(filtros)
 
     return redirect(url_for('index'))
+
+
+@app.route('/api/filtros', methods=['GET'])
+def api_filtros():
+    """Retorna os filtros cadastrados em formato JSON."""
+    filtros = carregar_filtros()
+    return jsonify(filtros)
 
 
 if __name__ == '__main__':

@@ -108,27 +108,17 @@
         {% endif %}
       </section>
 
+      <!-- Seção Anúncios OLX -->
       <section class="card card-feed">
         <div class="card-header">
           <div>
-            <h2>Últimos anúncios encontrados</h2>
-            <p>Total de anúncios compatíveis: <strong>{{ total_anuncios }}</strong></p>
+            <h2>Anúncios OLX</h2>
+            <p>Total OLX: <strong>{{ anuncios_olx|length }}</strong></p>
           </div>
         </div>
-
-        <form method="get" action="{{ url_for('index') }}" class="search-panel">
-          <input type="text" name="q" value="{{ search_query }}" placeholder="Buscar por título ou cidade" autocomplete="off">
-          <select name="origem">
-            <option value="all" {% if origem_atual == 'all' %}selected{% endif %}>Todas as origens</option>
-            <option value="olx" {% if origem_atual == 'olx' %}selected{% endif %}>OLX</option>
-            <option value="webmotors" {% if origem_atual == 'webmotors' %}selected{% endif %}>WebMotors</option>
-          </select>
-          <button class="btn-primary" type="submit">Filtrar</button>
-        </form>
-
-        {% if anuncios %}
+        {% if anuncios_olx %}
           <div class="anuncios-grid">
-            {% for anuncio in anuncios %}
+            {% for anuncio in anuncios_olx %}
               <article class="anuncio-card">
                 <div class="anuncio-media">
                   {% if anuncio.imagem %}
@@ -141,27 +131,81 @@
                   {% endif %}
                 </div>
                 <div class="anuncio-body">
-                  <span class="tag">{{ anuncio.origem or 'OLX' }}</span>
-                  <h3>{{ anuncio.titulo }}</h3>
-                  <p class="price">{{ anuncio.preco }}</p>
-                  <div class="info-row">
-                    <span>{{ anuncio.cidade or 'Cidade não disponível' }}</span>
-                    <span>{{ anuncio.data_hora }}</span>
-                  </div>
-                  <div class="anuncio-actions">
-                    <a class="btn-secondary" href="{{ anuncio.link }}" target="_blank" rel="noopener noreferrer">Abrir anúncio</a>
-                    <span class="small-text">Filtro: {{ anuncio.filtro_relacionado or 'N/A' }}</span>
-                  </div>
+                   <span class="tag">OLX</span>
+                   <h3>{{ anuncio.titulo }}</h3>
+                   <p class="price">{{ anuncio.preco }}</p>
+                   <div class="info-row">
+                     <span>{{ anuncio.cidade or 'Cidade não disponível' }}</span>
+                     <span>{{ anuncio.data_hora }}</span>
+                   </div>
+                   <div class="anuncio-actions">
+                     {% if anuncio.link and anuncio.link not in ['https://www.olx.com.br', 'https://www.olx.com.br/'] %}
+                       <a class="btn-secondary" href="{{ anuncio.link }}" target="_blank" rel="noopener noreferrer">Abrir anúncio</a>
+                     {% else %}
+                       <span class="btn-secondary" style="opacity: 0.5; cursor: not-allowed;">Link indisponível</span>
+                     {% endif %}
+                     <span class="small-text">Filtro: {{ anuncio.filtro_relacionado or 'N/A' }}</span>
+                   </div>
                 </div>
               </article>
             {% endfor %}
           </div>
         {% else %}
           <div class="empty-state">
-            Nenhum anúncio encontrado ainda. Ajuste os filtros ou aguarde a próxima varredura.
+            Nenhum anúncio OLX encontrado.
           </div>
         {% endif %}
       </section>
+
+      <!-- Seção Anúncios Mercado Livre -->
+      <section class="card card-feed">
+        <div class="card-header">
+          <div>
+            <h2>Anúncios Mercado Livre</h2>
+            <p>Total Mercado Livre: <strong>{{ anuncios_ml|length }}</strong></p>
+          </div>
+        </div>
+        {% if anuncios_ml %}
+          <div class="anuncios-grid">
+            {% for anuncio in anuncios_ml %}
+              <article class="anuncio-card">
+                <div class="anuncio-media">
+                  {% if anuncio.imagem %}
+                    <img src="{{ anuncio.imagem }}" alt="Foto do anúncio" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                         onload="this.nextElementSibling.style.display='none';">
+                    <div class="image-fallback" style="display:none;">Sem imagem</div>
+                  {% else %}
+                    <div class="image-fallback">Sem imagem</div>
+                  {% endif %}
+                </div>
+                <div class="anuncio-body">
+                   <span class="tag">Mercado Livre</span>
+                   <h3>{{ anuncio.titulo }}</h3>
+                   <p class="price">{{ anuncio.preco }}</p>
+                   <div class="info-row">
+                     <span>{{ anuncio.cidade or 'Cidade não disponível' }}</span>
+                     <span>{{ anuncio.data_hora }}</span>
+                   </div>
+                   <div class="anuncio-actions">
+                     {% if anuncio.link %}
+                       <a class="btn-secondary" href="{{ anuncio.link }}" target="_blank" rel="noopener noreferrer">Abrir anúncio</a>
+                     {% else %}
+                       <span class="btn-secondary" style="opacity: 0.5; cursor: not-allowed;">Link indisponível</span>
+                     {% endif %}
+                     <span class="small-text">Filtro: {{ anuncio.filtro_relacionado or 'N/A' }}</span>
+                   </div>
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty-state">
+            Nenhum anúncio Mercado Livre encontrado.
+          </div>
+        {% endif %}
+      </section>
+
     </main>
   </div>
 </body>
