@@ -97,7 +97,12 @@ def filtrar_anuncios(anuncios, termo: str = '', origem: str = 'all'):
         if termo and termo not in titulo and termo not in cidade:
             continue
 
-        if origem != 'all' and origem != origem_anuncio:
+        # Novo filtro para Mercado Livre
+        if origem == 'mercado_livre':
+            # Corrigido: só aceita exatamente "Mercado Livre"
+            if anuncio.get('origem') != 'Mercado Livre':
+                continue
+        elif origem != 'all' and origem != origem_anuncio:
             continue
 
         resultado.append(anuncio)
@@ -112,18 +117,25 @@ def index():
     anuncios_todos = carregar_anuncios()
 
     termo = request.args.get('q', '').strip()
-    origem = request.args.get('origem', 'all').lower().strip()
+    origem_atual = request.args.get('origem', 'all')
 
     # Se origem=webmotors, retorna lista vazia (ou poderia redirecionar para OLX)
-    if origem == 'webmotors':
+    if origem_atual == 'webmotors':
         anuncios_filtrados = []
     else:
-        anuncios_filtrados = filtrar_anuncios(anuncios_todos, termo, 'all')
+        anuncios_filtrados = filtrar_anuncios(anuncios_todos, termo, origem_atual)
         anuncios_filtrados.sort(key=lambda a: parse_data_hora(a.get("data_hora")), reverse=True)
 
     # Separação OLX e Mercado Livre
-    anuncios_olx = [a for a in anuncios_todos if a.get('origem') != 'Mercado Livre']
-    anuncios_ml = [a for a in anuncios_todos if a.get('origem') == 'Mercado Livre']
+    if origem_atual == "mercado_livre":
+        anuncios_olx = []
+        anuncios_ml = [a for a in anuncios_todos if a.get('origem') == 'Mercado Livre']
+    elif origem_atual == "olx":
+        anuncios_olx = [a for a in anuncios_todos if a.get('origem') == 'OLX']
+        anuncios_ml = []
+    else:
+        anuncios_olx = [a for a in anuncios_todos if a.get('origem') != 'Mercado Livre']
+        anuncios_ml = [a for a in anuncios_todos if a.get('origem') == 'Mercado Livre']
 
     total_olx = len(anuncios_olx)
 
@@ -135,7 +147,7 @@ def index():
         anuncios_ml=anuncios_ml,
         total_anuncios=len(anuncios_filtrados),
         search_query=termo,
-        origem_atual='olx',
+        origem_atual=origem_atual,
         total_olx=total_olx,
         total_webmotors=0,
         total_combinado=total_olx,
