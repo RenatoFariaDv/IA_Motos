@@ -26,14 +26,25 @@
         <h1>IA Motos</h1>
 <p class="subtitle">Veja os últimos anúncios compatíveis com seus filtros e acompanhe o histórico em tempo real.</p>
   </div>
-  <div class="indicators">
-    <span>Total de anúncios: <strong>{{ total_anuncios }}</strong></span>
-    <span>Novos anúncios: <strong>[Placeholder]</strong></span>
-    <span>Anúncios enviados: <strong>[Placeholder]</strong></span>
-  </div>
+      <div class="indicators">
+        <span>Total geral: <strong>{{ total_geral }}</strong></span>
+        <span>Total OLX: <strong>{{ total_olx }}</strong></span>
+        <span>Total Mercado Livre: <strong>{{ total_ml }}</strong></span>
+      </div>
 </header>
 
-    <main class="container">
+<main class="container">
+      <!-- Filtro de origem -->
+      <form method="get" style="margin-bottom: 24px; display: flex; gap: 12px; align-items: center;">
+        <label for="origem">Origem:</label>
+        <select name="origem" id="origem">
+          <option value="all" {% if origem_atual == 'all' %}selected{% endif %}>Todos</option>
+          <option value="olx" {% if origem_atual == 'olx' %}selected{% endif %}>OLX</option>
+          <option value="webmotors" {% if origem_atual == 'webmotors' %}selected{% endif %}>Webmotors</option>
+          <option value="mercado_livre" {% if origem_atual == 'mercado_livre' %}selected{% endif %}>Mercado Livre</option>
+        </select>
+        <button type="submit" class="btn-secondary">Filtrar</button>
+      </form>
       <section class="card card-form">
         <div class="card-header">
           <h2>Adicionar novo filtro</h2>
