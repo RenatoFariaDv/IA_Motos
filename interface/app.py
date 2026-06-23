@@ -138,6 +138,8 @@ def index():
         anuncios_ml = [a for a in anuncios_todos if a.get('origem') == 'Mercado Livre']
 
     total_olx = len(anuncios_olx)
+    total_ml = len(anuncios_ml)
+    total_geral = len(anuncios_todos)
 
     return render_template(
         'index.html',
@@ -149,6 +151,8 @@ def index():
         search_query=termo,
         origem_atual=origem_atual,
         total_olx=total_olx,
+        total_ml=total_ml,
+        total_geral=total_geral,
         total_webmotors=0,
         total_combinado=total_olx,
         webmotors_json_path=None,
