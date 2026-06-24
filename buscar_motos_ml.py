@@ -24,9 +24,30 @@ if __name__ == "__main__":
     except Exception:
         anuncios_salvos = []
 
-    # Comparar duplicados apenas por link
-    links_salvos = set(a.get("link") for a in anuncios_salvos if "link" in a)
-    novos_anuncios = [a for a in anuncios if a.get("link") not in links_salvos]
+    # Construir conjuntos de deduplicação
+    ids_existentes = {a.get("id_unico") for a in anuncios_salvos if a.get("id_unico")}
+    links_normalizados = {a.get("link", "").split("?")[0].split("#")[0] for a in anuncios_salvos if not a.get("id_unico") and a.get("link")}
+
+    novos_anuncios = []
+    duplicados_ignorados = 0
+
+    for a in anuncios:
+        id_unico = a.get("id_unico")
+        link = a.get("link", "")
+        link_normalizado = link.split("?")[0].split("#")[0]
+
+        if id_unico:
+            if id_unico in ids_existentes:
+                duplicados_ignorados += 1
+                continue
+            ids_existentes.add(id_unico)
+            novos_anuncios.append(a)
+        else:
+            if link_normalizado in links_normalizados:
+                duplicados_ignorados += 1
+                continue
+            links_normalizados.add(link_normalizado)
+            novos_anuncios.append(a)
 
     if novos_anuncios:
         anuncios_salvos.extend(novos_anuncios)
@@ -35,4 +56,4 @@ if __name__ == "__main__":
 
     print(f"total recebido: {total_recebido}")
     print(f"total novo salvo: {len(novos_anuncios)}")
-    print(f"duplicados ignorados: {total_recebido - len(novos_anuncios)}")
+    print(f"duplicados ignorados: {duplicados_ignorados}")
