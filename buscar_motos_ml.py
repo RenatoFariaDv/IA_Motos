@@ -56,12 +56,16 @@ if __name__ == "__main__":
 
     print(f"total recebido: {total_recebido}")
     print(f"total novo salvo: {len(novos_anuncios)}")
+    print(f"total elegível telegram: {len(novos_anuncios)}")
     print(f"duplicados ignorados: {duplicados_ignorados}")
 
     # Envio Telegram integrado
     from dotenv import load_dotenv
     import requests
     import time
+
+    # Limite máximo de envios Telegram por rodada
+    MAX_ENVIOS_TELEGRAM_ML = 10
 
     load_dotenv()
     TOKEN_TELEGRAM = os.getenv("TOKEN_TELEGRAM")
@@ -88,7 +92,7 @@ if __name__ == "__main__":
         except Exception as e:
             return False, str(e)
 
-    for anuncio in novos_anuncios:
+    for anuncio in novos_anuncios[:MAX_ENVIOS_TELEGRAM_ML]:
         titulo = anuncio.get("titulo", "Sem título")
         preco = anuncio.get("preco", "Sem preço")
         link = anuncio.get("link", "")

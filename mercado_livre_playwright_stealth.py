@@ -186,7 +186,7 @@ def buscar_mercado_livre():
                     qtd_cards = len(cards)
                     qtd_extraidos = 0
 
-                    for idx, card in enumerate(cards[:10]):
+                    for idx, card in enumerate(cards[:30]):
                         # Título
                         titulo = ""
                         for sel in seletores_titulo:
