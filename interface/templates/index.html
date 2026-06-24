@@ -37,11 +37,17 @@
       <!-- Filtro de origem -->
       <form method="get" style="margin-bottom: 24px; display: flex; gap: 12px; align-items: center;">
         <label for="origem">Origem:</label>
-        <select name="origem" id="origem">
+<select name="origem" id="origem">
           <option value="all" {% if origem_atual == 'all' %}selected{% endif %}>Todos</option>
           <option value="olx" {% if origem_atual == 'olx' %}selected{% endif %}>OLX</option>
           <option value="webmotors" {% if origem_atual == 'webmotors' %}selected{% endif %}>Webmotors</option>
           <option value="mercado_livre" {% if origem_atual == 'mercado_livre' %}selected{% endif %}>Mercado Livre</option>
+        </select>
+        <label for="ordenacao">Ordenar por:</label>
+        <select name="ordenacao" id="ordenacao">
+          <option value="recentes" {% if ordenacao_atual == 'recentes' %}selected{% endif %}>Mais recentes</option>
+          <option value="menor_preco" {% if ordenacao_atual == 'menor_preco' %}selected{% endif %}>Menor preço</option>
+          <option value="maior_preco" {% if ordenacao_atual == 'maior_preco' %}selected{% endif %}>Maior preço</option>
         </select>
         <button type="submit" class="btn-secondary">Filtrar</button>
       </form>

@@ -118,6 +118,7 @@ def index():
 
     termo = request.args.get('q', '').strip()
     origem_atual = request.args.get('origem', 'all')
+    ordenacao = request.args.get('ordenacao', 'recentes')
 
     # Se origem=webmotors, retorna lista vazia (ou poderia redirecionar para OLX)
     if origem_atual == 'webmotors':
@@ -126,16 +127,46 @@ def index():
         anuncios_filtrados = filtrar_anuncios(anuncios_todos, termo, origem_atual)
         anuncios_filtrados.sort(key=lambda a: parse_data_hora(a.get("data_hora")), reverse=True)
 
-    # Separação OLX e Mercado Livre
+    # Separação OLX e Mercado Livre + lógica de anúncios principal
     if origem_atual == "mercado_livre":
         anuncios_olx = []
         anuncios_ml = [a for a in anuncios_todos if a.get('origem') == 'Mercado Livre']
+        anuncios = anuncios_ml
     elif origem_atual == "olx":
         anuncios_olx = [a for a in anuncios_todos if a.get('origem') == 'OLX']
         anuncios_ml = []
+        anuncios = anuncios_olx
     else:
         anuncios_olx = [a for a in anuncios_todos if a.get('origem') != 'Mercado Livre']
         anuncios_ml = [a for a in anuncios_todos if a.get('origem') == 'Mercado Livre']
+        anuncios = anuncios_olx + anuncios_ml
+
+    def parse_preco(anuncio):
+        try:
+            preco = anuncio.get("preco")
+            if isinstance(preco, (int, float)):
+                return preco
+            if isinstance(preco, str):
+                return float(preco.replace("R$", "").replace(".", "").replace(",", ".").strip())
+            return 0.0
+        except Exception:
+            return 0.0
+
+    # Ordenação dos anúncios OLX
+    if ordenacao == "menor_preco":
+        anuncios_olx.sort(key=parse_preco)
+    elif ordenacao == "maior_preco":
+        anuncios_olx.sort(key=parse_preco, reverse=True)
+    else:  # recentes (padrão)
+        anuncios_olx.sort(key=lambda a: parse_data_hora(a.get("data_hora")), reverse=True)
+
+    # Ordenação dos anúncios Mercado Livre
+    if ordenacao == "menor_preco":
+        anuncios_ml.sort(key=parse_preco)
+    elif ordenacao == "maior_preco":
+        anuncios_ml.sort(key=parse_preco, reverse=True)
+    else:  # recentes (padrão)
+        anuncios_ml.sort(key=lambda a: parse_data_hora(a.get("data_hora")), reverse=True)
 
     total_olx = len(anuncios_olx)
     total_ml = len(anuncios_ml)
@@ -144,12 +175,13 @@ def index():
     return render_template(
         'index.html',
         filtros=filtros,
-        anuncios=anuncios_filtrados,
+        anuncios=anuncios,
         anuncios_olx=anuncios_olx,
         anuncios_ml=anuncios_ml,
-        total_anuncios=len(anuncios_filtrados),
+        total_anuncios=len(anuncios),
         search_query=termo,
         origem_atual=origem_atual,
+        ordenacao_atual=ordenacao,
         total_olx=total_olx,
         total_ml=total_ml,
         total_geral=total_geral,
