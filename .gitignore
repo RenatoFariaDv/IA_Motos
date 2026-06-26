@@ -1,28 +1,115 @@
+# ==========================================
+# PYTHON
+# ==========================================
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 
+# Cache de ferramentas
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# ==========================================
+# AMBIENTES E SEGREDOS
+# ==========================================
 .env
 .env.*
+!.env.example
 
+# ==========================================
+# BUILD / EXECUTÁVEIS
+# ==========================================
 build/
 dist/
 *.spec
 
+# ==========================================
+# PERFIS DO PLAYWRIGHT / CHROME
+# ==========================================
 facebook_profile/
 ml_profile/
 ml_profile_stealth/
 
+# Sessões
+facebook_session.json
+*.session
+*.sqlite
+*.db
+
+# ==========================================
+# DADOS GERADOS PELO SISTEMA
+# ==========================================
+interface/anuncios_encontrados.json
+interface/ml_enviados.json
+
+anuncios_vistos.json
+webmotors_vistos.json
+webmotors_vistos_backup.json
+
+mercado_livre_teste.json
+preview_mercado_livre.json
+
+olx_convertido.json
+webmotors_convertido.json
+webmotors_dashboard.json
+
+# ==========================================
+# LOGS
+# ==========================================
+logs/
+*.log
+
+# ==========================================
+# DEBUG / SCREENSHOTS
+# ==========================================
 debug_*.png
 debug_*.html
+
 teste_ml_*.png
+teste_imagens_*.html
+
 resp*.html
 stealth_*.png
 stealth_*.html
 
-*.log
-*.tmp
+webmotors_captcha.png
 
-mercado_livre_teste.json
-preview_mercado_livre.json
-webmotors_api_resposta.json
-webmotors_requests_debug.json
+# ==========================================
+# DIAGNÓSTICOS E TESTES
+# ==========================================
+diagnostico_*
+teste_*
+
+doc_ml_*.html
+github_search_*.html
+
+webmotors_requests*.txt
+webmotors_requests*.json
+
+webmotors_links*.txt
+
+# ==========================================
+# BACKUPS
+# ==========================================
+*.backup*
+main.py.backup*
+main_quebrado_backup.py
+
+# ==========================================
+# TEMPORÁRIOS
+# ==========================================
+*.tmp
+*.bak
+
+# ==========================================
+# VS CODE
+# ==========================================
+.vscode/
+
+# ==========================================
+# SISTEMA OPERACIONAL
+# ==========================================
+Thumbs.db
+desktop.ini
+.DS_Store
