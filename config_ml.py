@@ -1,4 +1,4 @@
-ATIVAR_MERCADO_LIVRE = False
+ATIVAR_MERCADO_LIVRE = True
 
 def mercado_livre_ativo():
     return ATIVAR_MERCADO_LIVRE
