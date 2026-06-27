@@ -401,6 +401,249 @@ button {
   }
 }
 
+@media (min-width: 981px) {
+  .container {
+    grid-template-columns: 70% 30%;
+    align-items: flex-start;
+  }
+  .main-feed {
+    order: 1;
+  }
+  .sidebar {
+    order: 2;
+  }
+}
+
+/* Compactação geral */
+.top-filters-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  align-items: flex-end;
+  margin-bottom: 18px !important;
+}
+.top-filters-form label,
+.top-filters-form select,
+.top-filters-form button {
+  margin-bottom: 0 !important;
+}
+.top-filters-form select,
+.top-filters-form button {
+  min-height: 32px;
+  font-size: 0.95rem;
+  padding: 6px 10px;
+}
+.top-filters-form label {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.card, .card-feed, .card-form, .card-list {
+  padding: 18px 18px 16px 18px !important;
+  border-radius: 12px !important;
+  box-shadow: var(--shadow);
+}
+
+.card-header {
+  margin-bottom: 14px !important;
+  padding-bottom: 0 !important;
+}
+
+.form-grid {
+  gap: 10px !important;
+}
+input, select {
+  padding: 7px 10px !important;
+  font-size: 0.95rem !important;
+  min-height: 32px !important;
+  border-radius: 8px !important;
+}
+button, .btn-primary, .btn-secondary, .btn-danger {
+  padding: 7px 14px !important;
+  font-size: 0.95rem !important;
+  border-radius: 8px !important;
+  min-height: 32px !important;
+}
+
+.cards-grid, .anuncios-grid {
+  gap: 12px !important;
+}
+
+.filtro-card {
+  padding: 12px 10px !important;
+  min-height: 120px !important;
+}
+
+.detail-row {
+  padding: 4px 0 !important;
+  font-size: 0.88rem !important;
+}
+
+.anuncio-card {
+  grid-template-columns: 120px 1fr !important;
+  min-height: 90px !important;
+}
+
+.anuncio-media {
+  min-height: 90px !important;
+  max-width: 120px !important;
+}
+.anuncio-media img {
+  max-height: 90px !important;
+  object-fit: cover !important;
+  border-radius: 8px !important;
+}
+
+.anuncio-body {
+  padding: 10px 10px 10px 14px !important;
+  gap: 6px !important;
+}
+.anuncio-body h3 {
+  font-size: 1.05rem !important;
+  margin-bottom: 2px !important;
+}
+.price {
+  font-size: 1rem !important;
+  margin-bottom: 2px !important;
+}
+.info-row {
+  gap: 6px !important;
+  font-size: 0.82rem !important;
+}
+.anuncio-actions {
+  gap: 6px !important;
+  margin-top: 4px !important;
+}
+.small-text {
+  font-size: 0.75rem !important;
+}
+
+@media (max-width: 980px) {
+  .container {
+    grid-template-columns: 1fr !important;
+  }
+  .main-feed, .sidebar {
+    order: unset !important;
+  }
+  .anuncio-card {
+    grid-template-columns: 1fr !important;
+    min-height: 80px !important;
+  }
+  .anuncio-media {
+    min-height: 80px !important;
+    max-width: 100% !important;
+  }
+  .anuncio-media img {
+    max-height: 80px !important;
+  }
+}
+
+/* ===== IA MOTOS - AJUSTES VISUAIS 2024-06 ===== */
+
+/* 1. Sidebar fixa durante rolagem */
+.sidebar-filters {
+  position: sticky !important;
+  top: 20px !important;
+  z-index: 2;
+}
+
+/* 2. Filtros superiores compactos em linha no desktop */
+@media (min-width: 721px) {
+  .top-filters-form {
+    flex-direction: row !important;
+    align-items: flex-end !important;
+    gap: 10px 18px !important;
+  }
+  .top-filters-form label,
+  .top-filters-form select,
+  .top-filters-form button {
+    margin-bottom: 0 !important;
+  }
+  .top-filters-form > * {
+    margin-right: 0 !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+/* 3. Anúncios mais compactos: imagem, padding, fonte, espaçamento */
+.anuncio-card {
+  min-height: 80px !important;
+  padding: 0 !important;
+}
+.anuncio-media {
+  min-height: 80px !important;
+  max-width: 100px !important;
+}
+.anuncio-media img {
+  max-height: 80px !important;
+  border-radius: 6px !important;
+}
+.anuncio-body {
+  padding: 8px 8px 8px 10px !important;
+  gap: 4px !important;
+}
+.anuncio-body h3 {
+  font-size: 0.95rem !important;
+  margin-bottom: 1px !important;
+}
+.price {
+  font-size: 0.92rem !important;
+  margin-bottom: 1px !important;
+}
+.info-row {
+  gap: 4px !important;
+  font-size: 0.78rem !important;
+}
+.anuncio-actions {
+  gap: 4px !important;
+  margin-top: 2px !important;
+}
+.small-text {
+  font-size: 0.7rem !important;
+}
+
+/* 4. Cards de filtros cadastrados mais baixos */
+.filtro-card {
+  min-height: 60px !important;
+  padding: 8px 8px !important;
+}
+
+/* 5. Garantir pelo menos 2 anúncios completos visíveis sem rolar */
+@media (min-width: 981px) {
+  .anuncios-grid {
+    max-height: calc(2 * 100px + 2 * 16px + 24px) !important; /* 2 cards + gaps + margem */
+    overflow-y: auto;
+  }
+}
+
+/* 6. Responsividade reforçada */
+@media (max-width: 720px) {
+  .container {
+    grid-template-columns: 1fr !important;
+  }
+  .sidebar-filters {
+    position: static !important;
+    top: unset !important;
+    z-index: unset !important;
+    margin-top: 0 !important;
+  }
+  .anuncio-card {
+    grid-template-columns: 1fr !important;
+    min-height: 70px !important;
+  }
+  .anuncio-media {
+    min-height: 70px !important;
+    max-width: 100% !important;
+  }
+  .anuncio-media img {
+    max-height: 70px !important;
+  }
+  .filtro-card {
+    min-height: 40px !important;
+    padding: 6px 6px !important;
+  }
+}
+
 @media (max-width: 720px) {
   .page-shell {
     padding: 20px 16px;
@@ -433,5 +676,90 @@ button {
   .indicators {
     flex-direction: column;
     gap: 8px;
+  }
+}
+/* ===== IA MOTOS - COMPACTAÇÃO FINAL ===== */
+
+.container {
+  grid-template-columns: minmax(0, 1fr) 360px !important;
+  gap: 18px !important;
+  align-items: start !important;
+}
+
+.main-feed {
+  grid-column: 1 !important;
+}
+
+.sidebar-filters {
+  grid-column: 2 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+}
+
+.topbar {
+  padding: 22px 32px !important;
+  margin-bottom: 18px !important;
+}
+
+.card {
+  padding: 18px !important;
+}
+
+.card-feed {
+  padding: 20px !important;
+}
+
+.search-panel {
+  margin-bottom: 14px !important;
+  gap: 10px !important;
+}
+
+.form-grid {
+  gap: 10px !important;
+}
+
+input,
+select {
+  padding: 9px 11px !important;
+}
+
+.filtro-card {
+  min-height: auto !important;
+  padding: 14px !important;
+}
+
+.detail-row {
+  padding: 6px 0 !important;
+}
+
+.anuncio-card {
+  grid-template-columns: 160px 1fr !important;
+}
+
+.anuncio-media {
+  min-height: 135px !important;
+}
+
+.anuncio-body {
+  padding: 14px !important;
+}
+
+.anuncio-body h3 {
+  font-size: 1rem !important;
+}
+
+@media (max-width: 980px) {
+  .container {
+    grid-template-columns: 1fr !important;
+  }
+
+  .main-feed,
+  .sidebar-filters {
+    grid-column: auto !important;
+  }
+
+  .anuncio-card {
+    grid-template-columns: 1fr !important;
   }
 }
