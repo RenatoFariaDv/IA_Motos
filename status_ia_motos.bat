@@ -1,0 +1,7 @@
+@echo off
+title STATUS IA MOTOS
+cd /d "%~dp0"
+echo Iniciando consulta de status...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$main=Get-CimInstance Win32_Process|Where-Object{$_.Name -eq 'python.exe' -and $_.CommandLine -match 'main.py'}; $flask=Get-CimInstance Win32_Process|Where-Object{$_.Name -eq 'python.exe' -and $_.CommandLine -match 'interface\\app.py'}; $aws=Get-CimInstance Win32_Process|Where-Object{$_.Name -eq 'powershell.exe' -and $_.CommandLine -match 'sincronizar_aws.ps1'}; Write-Host '================================'; Write-Host '       STATUS IA MOTOS'; Write-Host '================================'; if($main){Write-Host 'OLX + Mercado Livre..... ONLINE'}else{Write-Host 'OLX + Mercado Livre..... OFFLINE'}; if($flask){Write-Host 'Painel Flask............ ONLINE'}else{Write-Host 'Painel Flask............ OFFLINE'}; if($aws){Write-Host 'Sincronizacao AWS....... ONLINE'}else{Write-Host 'Sincronizacao AWS....... OFFLINE'}; if(Test-Path 'interface\anuncios_encontrados.json'){$info=Get-Item 'interface\anuncios_encontrados.json'; $size=[math]::Round($info.Length/1MB,1); Write-Host ('Ultima atualizacao..... '+$info.LastWriteTime.ToString('dd/MM/yyyy HH:mm')); Write-Host ('Tamanho arquivo........ '+$size+' MB')}else{Write-Host 'Arquivo anuncios....... NAO ENCONTRADO'}; Write-Host '================================'"
+echo.
+pause
