@@ -321,7 +321,7 @@ def buscar_motos_sp():
     print(f"📄 Total de páginas OLX para varrer: {MAX_PAGINAS_OLX}")
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False, channel="chrome")
+        browser = p.chromium.launch(headless=True, channel="chrome")
 
         context = browser.new_context(
             user_agent=(

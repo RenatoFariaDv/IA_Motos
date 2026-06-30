@@ -76,8 +76,9 @@ def buscar_mercado_livre():
         try:
             launch_kwargs = dict(
                 args=[
-                    "--start-maximized",
                     "--disable-blink-features=AutomationControlled",
+                    "--window-position=-32000,-32000",
+                    "--window-size=800,600",
                 ],
                 viewport={"width": 1280, "height": 900},
                 no_viewport=True,
