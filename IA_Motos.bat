@@ -12,7 +12,8 @@ echo 2 - Ver status
 echo 3 - Parar sistema
 echo 4 - Abrir painel local
 echo 5 - Abrir painel AWS
-echo 6 - Sair
+echo 6 - Dashboard
+echo 7 - Sair
 echo.
 set /p op=Escolha uma opcao:
 
@@ -41,7 +42,17 @@ if "%op%"=="5" (
     goto menu
 )
 
-if "%op%"=="6" exit
+if "%op%"=="6" (
+    if exist dashboard_ia_motos.bat (
+        call dashboard_ia_motos.bat
+    ) else (
+        echo Arquivo dashboard_ia_motos.bat nao encontrado.
+        pause
+    )
+    goto menu
+)
+
+if "%op%"=="7" exit
 
 echo Opcao invalida
 pause
