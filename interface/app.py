@@ -2,6 +2,15 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 import json
 import os
 from datetime import datetime
+import sys
+import os
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
+from score_oportunidade import calcular_score
 
 app = Flask(__name__)
 BASE_DIR = os.path.dirname(__file__)
@@ -140,6 +149,23 @@ def index():
         anuncios_olx = [a for a in anuncios_todos if a.get('origem') != 'Mercado Livre']
         anuncios_ml = [a for a in anuncios_todos if a.get('origem') == 'Mercado Livre']
         anuncios = anuncios_olx + anuncios_ml
+
+    # IA Score e Categoria para cada anúncio
+    def aplicar_score(lista):
+        for anuncio in lista:
+            try:
+                resultado = calcular_score(anuncio)
+                anuncio["ia_score"] = resultado.get("score", 0)
+                categoria = resultado.get("categoria", "DESCONHECIDO")
+                if categoria not in ["ALTA", "MEDIA", "BAIXA"]:
+                    categoria = "DESCONHECIDO"
+                anuncio["ia_categoria"] = categoria
+            except Exception:
+                anuncio["ia_score"] = 0
+                anuncio["ia_categoria"] = "DESCONHECIDO"
+
+    aplicar_score(anuncios_olx)
+    aplicar_score(anuncios_ml)
 
     def parse_preco(anuncio):
         try:

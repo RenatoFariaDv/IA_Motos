@@ -78,11 +78,27 @@
               <div class="anuncio-body">
                 <span class="tag">OLX</span>
                 <h3>{{ anuncio.titulo }}</h3>
-                <p class="price">{{ anuncio.preco }}</p>
-                <div class="info-row">
-                  <span>{{ anuncio.cidade or 'Cidade não disponível' }}</span>
-                  <span>{{ anuncio.data_hora }}</span>
-                </div>
+                 <p class="price">{{ anuncio.preco }}</p>
+                 <div class="ia-score-row" style="margin: 4px 0;">
+                   <span>
+                     IA Score: {{ anuncio.ia_score }}/100
+                   </span>
+                   <span style="margin-left: 10px;">
+                     {% if anuncio.ia_categoria == "ALTA" %}
+<span title="Oportunidade Alta">OPORTUNIDADE ALTA</span>
+                     {% elif anuncio.ia_categoria == "MEDIA" %}
+<span title="Oportunidade Média">OPORTUNIDADE MEDIA</span>
+                     {% elif anuncio.ia_categoria == "BAIXA" %}
+<span title="Oportunidade Baixa">OPORTUNIDADE BAIXA</span>
+                     {% else %}
+                       <span title="Categoria desconhecida">DESCONHECIDO</span>
+                     {% endif %}
+                   </span>
+                 </div>
+                 <div class="info-row">
+                   <span>{{ anuncio.cidade or 'Cidade não disponível' }}</span>
+                   <span>{{ anuncio.data_hora }}</span>
+                 </div>
                 <div class="anuncio-actions">
                   {% if anuncio.link and anuncio.link not in ['https://www.olx.com.br', 'https://www.olx.com.br/'] %}
                     <a class="btn-secondary" href="{{ anuncio.link }}" target="_blank" rel="noopener noreferrer">Abrir anúncio</a>
@@ -127,11 +143,27 @@
               <div class="anuncio-body">
                 <span class="tag">Mercado Livre</span>
                 <h3>{{ anuncio.titulo }}</h3>
-                <p class="price">{{ anuncio.preco }}</p>
-                <div class="info-row">
-                  <span>{{ anuncio.cidade or 'Cidade não disponível' }}</span>
-                  <span>{{ anuncio.data_hora }}</span>
-                </div>
+                 <p class="price">{{ anuncio.preco }}</p>
+                 <div class="ia-score-row" style="margin: 4px 0;">
+                   <span>
+                     IA Score: {{ anuncio.ia_score }}/100
+                   </span>
+                   <span style="margin-left: 10px;">
+                     {% if anuncio.ia_categoria == "ALTA" %}
+                       <span title="Oportunidade Alta">🔥 OPORTUNIDADE ALTA</span>
+                     {% elif anuncio.ia_categoria == "MEDIA" %}
+                       <span title="Oportunidade Média">⚠️ OPORTUNIDADE MEDIA</span>
+                     {% elif anuncio.ia_categoria == "BAIXA" %}
+                       <span title="Oportunidade Baixa">❄️ OPORTUNIDADE BAIXA</span>
+                     {% else %}
+                       <span title="Categoria desconhecida">DESCONHECIDO</span>
+                     {% endif %}
+                   </span>
+                 </div>
+                 <div class="info-row">
+                   <span>{{ anuncio.cidade or 'Cidade não disponível' }}</span>
+                   <span>{{ anuncio.data_hora }}</span>
+                 </div>
                 <div class="anuncio-actions">
                   {% if anuncio.link %}
                     <a class="btn-secondary" href="{{ anuncio.link }}" target="_blank" rel="noopener noreferrer">Abrir anúncio</a>
