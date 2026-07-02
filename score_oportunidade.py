@@ -1,4 +1,5 @@
 import re
+from consultar_fipe import consultar_fipe_moto
 
 def extrair_preco(valor):
     """
@@ -83,6 +84,7 @@ def extrair_km(anuncio):
 def calcular_score(anuncio):
     """
     Calcula o score de oportunidade de um anúncio de moto.
+    Agora integra consulta FIPE para motos.
 
     Parâmetros:
         anuncio (dict): Dicionário com informações do anúncio.
@@ -109,6 +111,58 @@ def calcular_score(anuncio):
             score -= 10
     else:
         score -= 15
+
+    # FIPE - só se tiver marca, modelo e ano detectados
+    # Sempre extrair marca/modelo do título (ignorar campos explícitos)
+    titulo = anuncio.get("titulo", "")
+    marca_detectada = None
+    modelo_detectado = None
+    ano_detectado = extrair_ano(anuncio)
+    # Esperado: "Marca Modelo Ano" (ex: "Honda PCX 2022")
+    match = re.match(r"^\s*([A-Za-z]+)\s+([A-Za-z0-9]+)\s+(\d{4})\s*$", titulo)
+    if match:
+        marca_detectada = match.group(1)
+        modelo_detectado = match.group(2)
+        # ano_detectado já extraído, mas pode conferir match.group(3)
+    else:
+        # fallback: tenta só marca/modelo sem ano
+        match2 = re.match(r"^\s*([A-Za-z]+)\s+([A-Za-z0-9]+)", titulo)
+        if match2:
+            marca_detectada = match2.group(1)
+            modelo_detectado = match2.group(2)
+    # Debug: print(marca_detectada, modelo_detectado, ano_detectado)
+
+    valor_fipe = None
+    diferenca_percentual = None
+    fonte_fipe = None
+    categoria_fipe = None
+
+    if marca_detectada and modelo_detectado and ano_detectado:
+        try:
+            marca_fipe = str(marca_detectada).strip()
+            modelo_fipe = str(modelo_detectado).strip()
+            ano_fipe = int(ano_detectado)
+            resultado_fipe = consultar_fipe_moto(marca_fipe, modelo_fipe, ano_fipe)
+            if resultado_fipe and resultado_fipe.get("encontrado") and resultado_fipe.get("valor_fipe"):
+                valor_fipe = resultado_fipe["valor_fipe"]
+                fonte_fipe = resultado_fipe.get("fonte", "FIPE")
+                if preco_detectado is not None:
+                    diferenca_percentual = ((valor_fipe - preco_detectado) / valor_fipe) * 100
+                    # Categoria FIPE (apenas para sobrescrever depois)
+                    if diferenca_percentual >= 20:
+                        categoria_fipe = "ALTA"
+                    elif 10 <= diferenca_percentual < 20:
+                        categoria_fipe = "MEDIA"
+                    else:
+                        categoria_fipe = "BAIXA"
+            else:
+                valor_fipe = None
+                diferenca_percentual = None
+                fonte_fipe = None
+        except Exception:
+            valor_fipe = None
+            diferenca_percentual = None
+            fonte_fipe = None
 
     # ANO
     ano_detectado = extrair_ano(anuncio)
@@ -144,7 +198,7 @@ def calcular_score(anuncio):
     # Limitar score entre 0 e 100
     score = max(0, min(100, score))
 
-    # Categoria
+    # Categoria base pelo score
     if score >= 75:
         categoria = "ALTA"
     elif score >= 50:
@@ -152,10 +206,20 @@ def calcular_score(anuncio):
     else:
         categoria = "BAIXA"
 
+    # Aplicar regra FIPE por cima, se valor_fipe existir
+    if valor_fipe is not None and categoria_fipe is not None:
+        # FIPE final: sobrescreve categoria conforme regra
+        categoria = categoria_fipe
+
     return {
         "score": score,
         "categoria": categoria,
         "preco_detectado": preco_detectado,
         "ano_detectado": ano_detectado,
-        "km_detectado": km_detectado
+        "km_detectado": km_detectado,
+        "valor_fipe": valor_fipe,
+        "diferenca_percentual": diferenca_percentual,
+        "fonte_fipe": fonte_fipe,
+        "marca_detectada": marca_detectada,
+        "modelo_detectado": modelo_detectado
     }
