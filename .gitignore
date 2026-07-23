@@ -113,3 +113,25 @@ main_quebrado_backup.py
 Thumbs.db
 desktop.ini
 .DS_Store
+
+
+
+# ==========================================
+# BACKUPS DE DESENVOLVIMENTO
+# ==========================================
+
+*_backup_*.py
+*_backup.py
+*_backup
+
+backups/
+tools/
+
+# Auditorias
+auditoria_*.txt
+architecture_refactor_*.txt
+trecho_*.txt
+
+# Backup temporário do gitignore
+.gitignore_backup_*
+.gitignore_antes_*
