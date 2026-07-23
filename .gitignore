@@ -135,3 +135,5 @@ trecho_*.txt
 # Backup temporário do gitignore
 .gitignore_backup_*
 .gitignore_antes_*
+# Perfil local do navegador
+chrome_profile/
