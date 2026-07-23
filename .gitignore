@@ -137,3 +137,7 @@ trecho_*.txt
 .gitignore_antes_*
 # Perfil local do navegador
 chrome_profile/
+
+# Arquivos gerados localmente
+*.exe
+*.pid
