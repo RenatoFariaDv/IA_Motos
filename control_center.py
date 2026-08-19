@@ -861,8 +861,128 @@ class THIAMotosApp(ctk.CTk):
             ).pack(
                 anchor="w",
                 padx=12,
-                pady=(6, 10)
+                pady=(6, 2 if (str(oportunidade.get("origem", "")).strip() or str(oportunidade.get("cidade", "")).strip() or oportunidade.get("fipe_encontrada") is not None) else 10)
             )
+
+            origem_oportunidade = str(
+                oportunidade.get("origem", "")
+            ).strip()
+            cidade_oportunidade = str(
+                oportunidade.get("cidade", "")
+            ).strip()
+            partes_local = [
+                parte
+                for parte in (origem_oportunidade, cidade_oportunidade)
+                if parte
+            ]
+
+            if partes_local:
+                ctk.CTkLabel(
+                    analise_frame,
+                    text=" • ".join(partes_local),
+                    font=("Arial", 12),
+                    text_color=theme.COLOR_TEXT_MUTED
+                ).pack(
+                    anchor="w",
+                    padx=12,
+                    pady=(0, 2)
+                )
+
+            if oportunidade.get("fipe_encontrada"):
+                valor_fipe = oportunidade.get("valor_fipe")
+                diferenca_reais = oportunidade.get(
+                    "diferenca_fipe_reais"
+                )
+                diferenca_percentual = oportunidade.get(
+                    "diferenca_fipe_percentual"
+                )
+
+                try:
+                    valor_fipe_formatado = (
+                        f"R$ {float(valor_fipe):,.2f}"
+                        .replace(",", "X")
+                        .replace(".", ",")
+                        .replace("X", ".")
+                    )
+                except (TypeError, ValueError):
+                    valor_fipe_formatado = None
+
+                if valor_fipe_formatado:
+                    ctk.CTkLabel(
+                        analise_frame,
+                        text=f"FIPE: {valor_fipe_formatado}",
+                        font=("Arial", 12),
+                        text_color=theme.COLOR_TEXT_MUTED
+                    ).pack(
+                        anchor="w",
+                        padx=12,
+                        pady=(0, 2)
+                    )
+
+                try:
+                    diferenca_reais_num = float(diferenca_reais)
+                    sinal = "+" if diferenca_reais_num >= 0 else "-"
+                    diferenca_reais_formatada = (
+                        f"R$ {abs(diferenca_reais_num):,.2f}"
+                        .replace(",", "X")
+                        .replace(".", ",")
+                        .replace("X", ".")
+                    )
+
+                    ctk.CTkLabel(
+                        analise_frame,
+                        text=(
+                            "Diferença FIPE: "
+                            f"{sinal}{diferenca_reais_formatada}"
+                        ),
+                        font=("Arial", 12),
+                        text_color=theme.COLOR_TEXT_MUTED
+                    ).pack(
+                        anchor="w",
+                        padx=12,
+                        pady=(0, 2)
+                    )
+                except (TypeError, ValueError):
+                    pass
+
+                try:
+                    diferenca_percentual_num = float(
+                        diferenca_percentual
+                    )
+                    sinal_pct = (
+                        "+" if diferenca_percentual_num >= 0 else "-"
+                    )
+                    percentual_formatado = (
+                        f"{abs(diferenca_percentual_num):.2f}"
+                        .replace(".", ",")
+                    )
+
+                    ctk.CTkLabel(
+                        analise_frame,
+                        text=(
+                            "Diferença percentual: "
+                            f"{sinal_pct}{percentual_formatado}%"
+                        ),
+                        font=("Arial", 12),
+                        text_color=theme.COLOR_TEXT_MUTED
+                    ).pack(
+                        anchor="w",
+                        padx=12,
+                        pady=(0, 10)
+                    )
+                except (TypeError, ValueError):
+                    pass
+            else:
+                ctk.CTkLabel(
+                    analise_frame,
+                    text="FIPE não disponível",
+                    font=("Arial", 11),
+                    text_color=theme.COLOR_TEXT_MUTED
+                ).pack(
+                    anchor="w",
+                    padx=12,
+                    pady=(0, 10)
+                )
 
             if link:
                 ctk.CTkButton(
