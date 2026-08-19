@@ -43,6 +43,8 @@ facebook_session.json
 interface/anuncios_encontrados.json
 interface/ml_enviados.json
 interface/fipe_motos.json
+data/mission_matches.json
+data/agent_decisions.json
 
 anuncios_vistos.json
 webmotors_vistos.json
