@@ -1,5 +1,5 @@
 $ArquivoLocal = "$PSScriptRoot\interface\anuncios_encontrados.json"
-$Destino = "ubuntu@54.233.146.58:/home/ubuntu/IA_Motos/interface/anuncios_encontrados.json"
+$Destino = "ubuntu@54.233.146.58:/home/ubuntu/IA_Motos_PROD/interface/anuncios_encontrados.json"
 
 while ($true) {
     if (Test-Path $ArquivoLocal) {
