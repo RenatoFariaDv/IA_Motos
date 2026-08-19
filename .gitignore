@@ -45,6 +45,8 @@ interface/ml_enviados.json
 interface/fipe_motos.json
 data/mission_matches.json
 data/agent_decisions.json
+data/opportunity_pipeline.lock
+data/missions.json
 
 anuncios_vistos.json
 webmotors_vistos.json
