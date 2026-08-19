@@ -24,6 +24,7 @@ from core.dashboard_service import (
     gerar_resumo_missao,
 )
 from core.paths import anuncios_encontrados_path, mission_matches_path
+from core import robo_process
 
 from ui.dashboard.header import DashboardHeader
 
@@ -97,11 +98,13 @@ class THIAMotosApp(ctk.CTk):
         )
         container.pack(fill="both", expand=True, padx=32, pady=28)
 
+        status_atual = robo_process.verificar_status(PID_FILE, ROBO_FILE)
+
         DashboardHeader.render(container)
         DashboardCards.render(
             container,
-            self.status_robo_texto(),
-            PID_FILE.exists(),
+            "Rodando" if status_atual.rodando else "Parado",
+            status_atual.rodando,
         )
         self.criar_corpo_dashboard(container)
         self.iniciar_auto_refresh_dashboard()
@@ -370,29 +373,124 @@ class THIAMotosApp(ctk.CTk):
         )
 
     def status_robo_texto(self):
-        if PID_FILE.exists():
-            return "Rodando"
-        return "Parado"
+        status = robo_process.verificar_status(PID_FILE, ROBO_FILE)
+        return "Rodando" if status.rodando else "Parado"
+
+    def _mostrar_feedback_robo(self, titulo: str, mensagem: str, cor_destaque: str) -> None:
+        janela = ctk.CTkToplevel(self)
+        janela.title(titulo)
+        janela.geometry("440x210")
+        janela.resizable(False, False)
+        janela.configure(fg_color=theme.COLOR_BG)
+        janela.transient(self)
+        janela.grab_set()
+
+        ctk.CTkLabel(
+            janela,
+            text=titulo,
+            font=("Arial", 20, "bold"),
+            text_color=cor_destaque,
+        ).pack(pady=(26, 8))
+
+        ctk.CTkLabel(
+            janela,
+            text=mensagem,
+            font=("Arial", 13),
+            text_color=theme.COLOR_TEXT_MUTED,
+            justify="center",
+            wraplength=380,
+        ).pack(padx=24, pady=(0, 18))
+
+        ctk.CTkButton(
+            janela,
+            text="OK",
+            command=janela.destroy,
+            height=36,
+            corner_radius=9,
+            fg_color=theme.COLOR_CARD_HOVER,
+            hover_color=theme.COLOR_BORDER,
+            font=("Arial", 12, "bold"),
+        ).pack(padx=24, pady=(0, 22))
 
     def iniciar_robo(self):
-        if PID_FILE.exists():
+        resultado = robo_process.iniciar(PID_FILE, ROBO_FILE, BASE_DIR)
+
+        if resultado.ja_estava_rodando:
+            self._mostrar_feedback_robo(
+                "Robô já em execução",
+                f"O robô já está rodando (PID {resultado.pid}).",
+                theme.COLOR_YELLOW,
+            )
             return
 
-        processo = subprocess.Popen(
-            ["python", str(ROBO_FILE)],
-            cwd=str(BASE_DIR),
-            creationflags=subprocess.CREATE_NEW_CONSOLE
-        )
-        PID_FILE.write_text(str(processo.pid), encoding="utf-8")
+        if not resultado.sucesso:
+            self._mostrar_feedback_robo(
+                "Falha ao iniciar",
+                f"Não foi possível iniciar o robô: {resultado.erro}",
+                theme.COLOR_RED,
+            )
+            return
+
+        if resultado.pid_orfao_recuperado:
+            self._mostrar_feedback_robo(
+                "PID antigo recuperado",
+                "Um registro antigo do robô (de um processo que já "
+                "não existia mais) foi limpo automaticamente. "
+                f"Robô iniciado agora (PID {resultado.pid}).",
+                theme.COLOR_GREEN,
+            )
+        else:
+            self._mostrar_feedback_robo(
+                "Robô iniciado",
+                f"Robô iniciado com sucesso (PID {resultado.pid}).",
+                theme.COLOR_GREEN,
+            )
+
         self.criar_dashboard()
 
     def parar_robo(self):
-        if not PID_FILE.exists():
+        resultado = robo_process.parar(PID_FILE, ROBO_FILE)
+
+        if resultado.ja_estava_parado:
+            self._mostrar_feedback_robo(
+                "Robô não está rodando",
+                "Não há nenhum robô em execução para parar.",
+                theme.COLOR_YELLOW,
+            )
             return
 
-        pid = PID_FILE.read_text(encoding="utf-8").strip()
-        subprocess.run(["taskkill", "/PID", pid, "/F"], shell=True)
-        PID_FILE.unlink(missing_ok=True)
+        if resultado.estado_limpo_sem_matar:
+            if resultado.motivo == "pid reaproveitado":
+                motivo_texto = (
+                    "o PID registrado agora pertence a outro programa "
+                    "— nada foi encerrado por segurança"
+                )
+            else:
+                motivo_texto = "o processo já estava encerrado"
+
+            self._mostrar_feedback_robo(
+                "Estado do robô limpo",
+                f"O registro do robô estava desatualizado ({motivo_texto}). "
+                "Nenhum processo foi encerrado.",
+                theme.COLOR_YELLOW,
+            )
+            self.criar_dashboard()
+            return
+
+        if not resultado.sucesso:
+            self._mostrar_feedback_robo(
+                "Falha ao parar",
+                f"Não foi possível encerrar o robô "
+                f"(PID {resultado.pid}): {resultado.erro}",
+                theme.COLOR_RED,
+            )
+            return
+
+        self._mostrar_feedback_robo(
+            "Robô parado",
+            f"Robô (PID {resultado.pid}) encerrado com sucesso.",
+            theme.COLOR_GREEN,
+        )
         self.criar_dashboard()
 
     def abrir_painel(self):
