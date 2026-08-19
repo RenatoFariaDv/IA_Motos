@@ -316,6 +316,7 @@ def buscar_motos_sp():
     links_salvos = {anuncio.get('link') for anuncio in anuncios_salvos if anuncio.get('link')}
     novos_encontrados = 0
     novos_salvos = 0
+    novos_anuncios_rodada = []
 
     print(f"📋 Carregados {len(filtros)} filtros do painel")
     print(f"📄 Total de páginas OLX para varrer: {MAX_PAGINAS_OLX}")
@@ -450,6 +451,7 @@ def buscar_motos_sp():
                             anuncios_salvos.append(anuncio)
                             links_salvos.add(href)
                             novos_salvos += 1
+                            novos_anuncios_rodada.append(anuncio)
                             print(f"💾 Salvo no painel: {titulo[:50]}...")
 
                         if novos_encontrados >= MAX_NOVIDADES_POR_RODADA:
@@ -481,12 +483,17 @@ def buscar_motos_sp():
     else:
         print("😴 Nenhuma moto nova encontrada agora.")
 
+    return novos_anuncios_rodada
+
 
 if __name__ == "__main__":
     print("🚀 SISTEMA DE PROSPECÇÃO INICIADO")
 
+    from core import opportunity_pipeline
+
     while True:
-        buscar_motos_sp()
+        novos_olx = buscar_motos_sp()
+        opportunity_pipeline.processar_rodada(novos_olx)
         executar_mercado_livre()
         print(f"⏳ Aguardando {INTERVALO_SEGUNDOS // 60} minutos para a próxima rodada...")
         time.sleep(INTERVALO_SEGUNDOS)
