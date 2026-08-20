@@ -146,3 +146,14 @@ chrome_profile/
 # Arquivos gerados localmente
 *.exe
 *.pid
+
+# ==========================================
+# INTERFACE_V2 (painel Flask) -- protecao especifica
+# contra artefatos de runtime/backup que ja apareceram
+# no servidor de producao (edicoes manuais historicas)
+# ==========================================
+interface_v2/__pycache__/
+interface_v2/**/*.pyc
+interface_v2/**/*.bak*
+interface_v2/**/*.save
+interface_v2/**/*backup*
