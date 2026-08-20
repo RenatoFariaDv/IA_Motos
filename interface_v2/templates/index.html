@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>TH IA MOTOS - OLX</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <main class="app-shell">
+        <section class="hero">
+            <div class="hero-title">
+                <div>
+                    <p class="eyebrow">Radar inteligente</p>
+                    <h1>TH IA MOTOS</h1>
+                </div>
+                <span class="olx-badge">OLX</span>
+            </div>
+
+            <div class="metrics-card">
+                <div class="metric-row"><span>📊 Total geral</span><strong>{{ total_geral }}</strong></div>
+                <div class="metric-row"><span>🟢 Total OLX</span><strong>{{ total_olx }}</strong></div>
+                <div class="metric-row"><span>⭐ Novos hoje</span><strong>{{ novos_hoje }}</strong></div>
+                <div class="metric-row"><span>🕒 Último anúncio</span><strong>{{ ultimo_anuncio }}</strong></div>
+                <div class="metric-row"><span>☁️ Arquivo AWS</span><strong>{{ ultima_atualizacao }}</strong></div>
+            </div>
+        </section>
+
+        <section class="search-section">
+            <form class="search-form" method="get" action="/">
+                <input type="text" name="q" placeholder="Buscar por título..." value="{{ search|default('') }}">
+                <button type="submit">Buscar</button>
+            </form>
+        </section>
+
+        {% if error %}
+            <section class="state-card error">
+                <h2>Erro ao carregar anúncios</h2>
+                <p>{{ error }}</p>
+                <p>Verifique se o arquivo <code>anuncios_encontrados.json</code> existe e está válido.</p>
+            </section>
+        {% elif anuncios|length == 0 %}
+            <section class="state-card no-results">
+                <h2>Nenhum anúncio OLX encontrado.</h2>
+                <p>Altere o filtro ou aguarde novas atualizações.</p>
+            </section>
+        {% else %}
+            <section class="cards">
+                {% for a in anuncios %}
+                <article class="card">
+                    <div class="img-wrap">
+                        <img
+                            class="moto-img"
+                            src="{{ a.imagem if a.imagem else url_for('static', filename='img/th-logo.png') }}"
+                            alt="Imagem do anúncio"
+                            referrerpolicy="no-referrer"
+                            onerror="this.onerror=null;this.classList.add('logo-placeholder');this.src='{{ url_for('static', filename='img/th-logo.png') }}';"
+                            {% if not a.imagem %}class="moto-img logo-placeholder"{% endif %}>
+                    </div>
+
+                    <div class="card-body">
+                        <h3 class="titulo">{{ a.titulo }}</h3>
+                        <div class="preco">{{ a.preco or "Preço não informado" }}</div>
+
+                        <div class="details">
+                            <div>📍 {{ a.cidade or "Cidade não informada" }}</div>
+                            <div>🕒 {{ a.data_hora or "Data não informada" }}</div>
+                            <div>🏷️ {{ a.filtro_relacionado or "Todos" }}</div>
+                        </div>
+
+                        {% if a.link %}
+                            <a class="btn" href="{{ a.link }}" target="_blank" rel="noopener">Abrir anúncio</a>
+                        {% endif %}
+                    </div>
+                </article>
+                {% endfor %}
+            </section>
+        {% endif %}
+    </main>
+
+    <footer>
+        TH IA MOTOS © 2026
+    </footer>
+</body>
+</html>

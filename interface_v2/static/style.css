@@ -1,0 +1,333 @@
+:root {
+    --green-dark: #062f1f;
+    --green: #0b5a35;
+    --green-light: #5ee07a;
+    --bg: #f4f7f5;
+    --text: #14201a;
+    --muted: #66736c;
+    --card: #ffffff;
+    --line: #e3ebe6;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+.app-shell {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 22px;
+}
+
+.hero {
+    background: linear-gradient(145deg, #062f1f, #0b4a2f);
+    color: #fff;
+    border-radius: 28px;
+    padding: 28px;
+    box-shadow: 0 18px 40px rgba(6, 47, 31, 0.22);
+    margin-bottom: 24px;
+}
+
+.hero-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.eyebrow {
+    margin: 0 0 6px;
+    font-size: 0.85rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #bdf5c9;
+    font-weight: 700;
+}
+
+h1 {
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 4rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+}
+
+.olx-badge {
+    background: var(--green-light);
+    color: var(--green-dark);
+    font-weight: 900;
+    border-radius: 999px;
+    padding: 8px 16px;
+    letter-spacing: 0.08em;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.12);
+}
+
+.metrics-card {
+    background: rgba(0, 0, 0, 0.20);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 22px;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+}
+
+.metric-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    align-items: center;
+    padding: 15px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.10);
+    font-size: 1rem;
+}
+
+.metric-row:last-child {
+    border-bottom: 0;
+}
+
+.metric-row span {
+    color: #e9fff0;
+    font-weight: 700;
+}
+
+.metric-row strong {
+    color: var(--green-light);
+    text-align: right;
+    font-size: 1.06rem;
+}
+
+.search-section {
+    margin-bottom: 24px;
+}
+
+.search-form {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+}
+
+.search-form input {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 16px 18px;
+    font-size: 1rem;
+    background: #fff;
+    box-shadow: 0 10px 26px rgba(10, 45, 28, 0.07);
+    outline: none;
+}
+
+.search-form input:focus {
+    border-color: var(--green-light);
+    box-shadow: 0 0 0 4px rgba(94, 224, 122, 0.18);
+}
+
+.search-form button,
+.btn {
+    border: 0;
+    border-radius: 18px;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, var(--green), var(--green-dark));
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 12px 26px rgba(6, 47, 31, 0.20);
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+    gap: 22px;
+}
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 26px;
+    overflow: hidden;
+    box-shadow: 0 14px 35px rgba(10, 45, 28, 0.08);
+}
+
+.img-wrap {
+    height: 210px;
+    background: linear-gradient(145deg, #edf2ef, #dfe8e3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #7a8580;
+    font-weight: 700;
+    text-align: center;
+}
+
+.img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.no-img {
+    line-height: 1.7;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.titulo {
+    margin: 0 0 10px;
+    font-size: 1.16rem;
+    line-height: 1.25;
+    font-weight: 900;
+}
+
+.preco {
+    color: #19a947;
+    font-size: 1.45rem;
+    font-weight: 900;
+    margin-bottom: 14px;
+}
+
+.details {
+    display: grid;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 0.98rem;
+    margin-bottom: 18px;
+}
+
+.btn {
+    display: block;
+    text-align: center;
+    width: 100%;
+}
+
+.state-card {
+    background: #fff;
+    border-radius: 22px;
+    padding: 24px;
+    text-align: center;
+    border: 1px solid var(--line);
+    box-shadow: 0 12px 30px rgba(10, 45, 28, 0.08);
+}
+
+.error {
+    color: #a83b3b;
+    background: #fff0f0;
+}
+
+.no-results {
+    color: var(--muted);
+}
+
+footer {
+    text-align: center;
+    color: var(--muted);
+    padding: 24px;
+}
+
+@media (max-width: 768px) {
+    body {
+        background: #f6f8f7;
+    }
+
+    .app-shell {
+        padding: 0 12px 18px;
+    }
+
+    .hero {
+        margin: 0 -12px 18px;
+        border-radius: 0 0 30px 30px;
+        padding: 34px 18px 22px;
+    }
+
+    .hero-title {
+        align-items: flex-start;
+    }
+
+    h1 {
+        font-size: 2.55rem;
+        letter-spacing: -0.07em;
+    }
+
+    .eyebrow {
+        font-size: 0.72rem;
+    }
+
+    .olx-badge {
+        margin-top: 8px;
+        padding: 7px 13px;
+        font-size: 0.9rem;
+    }
+
+    .metrics-card {
+        border-radius: 20px;
+    }
+
+    .metric-row {
+        padding: 14px 14px;
+        font-size: 0.95rem;
+    }
+
+    .metric-row strong {
+        font-size: 0.95rem;
+        max-width: 150px;
+    }
+
+    .search-form {
+        grid-template-columns: 1fr 110px;
+        gap: 10px;
+    }
+
+    .search-form input,
+    .search-form button {
+        border-radius: 16px;
+        padding: 14px;
+    }
+
+    .cards {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .card {
+        border-radius: 24px;
+    }
+
+    .img-wrap {
+        height: 250px;
+    }
+
+    .card-body {
+        padding: 20px 18px;
+    }
+
+    .titulo {
+        font-size: 1.28rem;
+    }
+
+    .preco {
+        font-size: 1.55rem;
+    }
+}
+
+
+/* Placeholder oficial TH MOTOS para anúncios sem foto */
+.img-wrap {
+    background: radial-gradient(circle at center, #0b3d2e 0%, #020604 75%) !important;
+}
+
+.img-wrap img.logo-placeholder,
+.img-wrap img[src*="th-logo.png"] {
+    object-fit: contain !important;
+    object-position: center !important;
+    padding: 26px !important;
+    background: radial-gradient(circle at center, #0b3d2e 0%, #020604 75%) !important;
+}
