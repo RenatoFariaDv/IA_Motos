@@ -63,6 +63,7 @@ class Sidebar(ctk.CTkFrame):
             ("🧠 Agente IA", self.callbacks["ia"], "tools"),
             ("\U0001f4da Mem\u00f3ria da IA", self.callbacks["memoria"], "tools"),
             ("\U0001f4ca Agent Analytics", self.callbacks["analytics"], "tools"),
+            ("\U0001f9ea Calibração Financeira", self.callbacks["calibracao"], "tools"),
             ("⚙ Configurações", self.callbacks["config"], "config"),
         ]
 

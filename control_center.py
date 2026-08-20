@@ -22,6 +22,9 @@ from core.dashboard_service import (
     contar_oportunidades_excelentes,
     contar_oportunidades_por_missao,
     gerar_resumo_missao,
+    listar_todas_oportunidades,
+    gerar_metricas_shadow_mode,
+    comparar_classificacao_shadow,
 )
 from core.paths import anuncios_encontrados_path, mission_matches_path
 from core import robo_process
@@ -68,6 +71,7 @@ class THIAMotosApp(ctk.CTk):
                 "ia": self.tela_agente_ia,
                 "memoria": self.tela_memoria_ia,
                 "analytics": self.tela_agent_analytics,
+                "calibracao": self.tela_calibracao_financeira,
                 "config": self.tela_configuracoes,
             }
         )
@@ -4238,6 +4242,467 @@ class THIAMotosApp(ctk.CTk):
     def tela_agent_analytics(self):
         self.limpar_content()
         render_agent_analytics(self.content)
+
+
+    def tela_calibracao_financeira(self):
+        """
+        Observabilidade do Shadow Mode (core/financial_scoring.py).
+
+        So le/exibe campos ja persistidos em mission_matches.json.
+        Nunca recalcula score, nunca filtra oportunidades oficiais,
+        nunca altera badges/contadores oficiais e nunca dispara
+        Telegram/AWS -- e uma tela passiva de leitura.
+        """
+        self.limpar_content()
+
+        def _fmt_preco(valor):
+            try:
+                return (
+                    f"R$ {float(valor):,.2f}"
+                    .replace(",", "X")
+                    .replace(".", ",")
+                    .replace("X", ".")
+                )
+            except (TypeError, ValueError):
+                return "-"
+
+        def _fmt_percentual(valor):
+            try:
+                numero = float(valor)
+            except (TypeError, ValueError):
+                return "-"
+
+            sinal = "+" if numero >= 0 else "-"
+            texto = f"{abs(numero):.2f}".replace(".", ",")
+            return f"{sinal}{texto}%"
+
+        def _fmt_score(valor):
+            try:
+                return f"{float(valor):.0f}/100"
+            except (TypeError, ValueError):
+                return "-"
+
+        def _fmt_media(valor):
+            if valor is None:
+                return "--"
+
+            try:
+                return f"{float(valor):.1f}"
+            except (TypeError, ValueError):
+                return "--"
+
+        frame = ctk.CTkFrame(
+            self.content,
+            fg_color="transparent",
+        )
+        frame.pack(
+            fill="both",
+            expand=True,
+            padx=32,
+            pady=28,
+        )
+
+        ctk.CTkLabel(
+            frame,
+            text="\U0001f9ea Calibração Financeira",
+            font=("Arial", 32, "bold"),
+            text_color=theme.COLOR_TEXT,
+        ).pack(anchor="w")
+
+        ctk.CTkLabel(
+            frame,
+            text=(
+                "Shadow Mode — observabilidade apenas. Não altera a "
+                "classificação oficial."
+            ),
+            font=("Arial", 16),
+            text_color=theme.COLOR_TEXT_MUTED,
+        ).pack(
+            anchor="w",
+            pady=(4, 20),
+        )
+
+        oportunidades_shadow = listar_todas_oportunidades()
+        metricas_shadow = gerar_metricas_shadow_mode(
+            oportunidades_shadow
+        )
+
+        dados_kpis_shadow = [
+            (
+                "COM SHADOW",
+                str(metricas_shadow["total_com_shadow"]),
+                theme.COLOR_BLUE,
+            ),
+            (
+                "SEM SHADOW (ANTIGO)",
+                str(metricas_shadow["total_sem_shadow"]),
+                theme.COLOR_TEXT_MUTED,
+            ),
+            (
+                "SEM FIPE",
+                str(metricas_shadow["total_sem_fipe"]),
+                theme.COLOR_YELLOW,
+            ),
+            (
+                "MESMA CLASSIFICAÇÃO",
+                str(metricas_shadow["mesma_classificacao"]),
+                theme.COLOR_BLUE,
+            ),
+            (
+                "CAÍRAM",
+                str(metricas_shadow["cairam_classificacao"]),
+                "#FF5C5C",
+            ),
+            (
+                "SUBIRAM",
+                str(metricas_shadow["subiram_classificacao"]),
+                theme.COLOR_GREEN,
+            ),
+            (
+                "MÉDIA MISSÃO",
+                _fmt_media(metricas_shadow["media_score_missao"]),
+                theme.COLOR_BLUE,
+            ),
+            (
+                "MÉDIA FINANCEIRA",
+                _fmt_media(
+                    metricas_shadow["media_score_financeiro"]
+                ),
+                theme.COLOR_PURPLE,
+            ),
+            (
+                "MÉDIA EXPERIMENTAL",
+                _fmt_media(
+                    metricas_shadow[
+                        "media_score_final_experimental"
+                    ]
+                ),
+                theme.COLOR_GREEN,
+            ),
+        ]
+
+        grade_kpis_shadow = ctk.CTkFrame(
+            frame,
+            fg_color="transparent",
+        )
+        grade_kpis_shadow.pack(
+            fill="x",
+            pady=(0, 18),
+        )
+
+        colunas_kpis_shadow = 3
+
+        for coluna in range(colunas_kpis_shadow):
+            grade_kpis_shadow.grid_columnconfigure(
+                coluna,
+                weight=1,
+            )
+
+        for indice, (
+            titulo_kpi,
+            valor_kpi,
+            cor_kpi,
+        ) in enumerate(dados_kpis_shadow):
+            linha_kpi, coluna_kpi = divmod(
+                indice, colunas_kpis_shadow
+            )
+
+            card_kpi = ctk.CTkFrame(
+                grade_kpis_shadow,
+                fg_color=theme.COLOR_CARD_HOVER,
+                corner_radius=14,
+                border_width=1,
+                border_color=theme.COLOR_BORDER,
+            )
+            card_kpi.grid(
+                row=linha_kpi,
+                column=coluna_kpi,
+                sticky="nsew",
+                padx=5,
+                pady=5,
+            )
+
+            ctk.CTkLabel(
+                card_kpi,
+                text=titulo_kpi,
+                font=("Arial", 10, "bold"),
+                text_color=theme.COLOR_TEXT_MUTED,
+            ).pack(
+                anchor="w",
+                padx=12,
+                pady=(12, 3),
+            )
+
+            ctk.CTkLabel(
+                card_kpi,
+                text=valor_kpi,
+                font=("Arial", 22, "bold"),
+                text_color=cor_kpi,
+            ).pack(
+                anchor="w",
+                padx=12,
+                pady=(0, 12),
+            )
+
+        lista_shadow = ctk.CTkScrollableFrame(
+            frame,
+            fg_color="transparent",
+        )
+        lista_shadow.pack(
+            fill="both",
+            expand=True,
+            pady=(4, 0),
+        )
+
+        if not oportunidades_shadow:
+            ctk.CTkLabel(
+                lista_shadow,
+                text="Nenhuma oportunidade encontrada.",
+                font=("Arial", 15),
+                text_color=theme.COLOR_TEXT_MUTED,
+            ).pack(pady=40)
+
+            return
+
+        for oportunidade in oportunidades_shadow:
+            titulo = str(
+                oportunidade.get(
+                    "titulo", "Anúncio sem título"
+                )
+            )
+            origem = str(oportunidade.get("origem", "-")) or "-"
+            data_hora = (
+                str(oportunidade.get("data_hora", "-")) or "-"
+            )
+
+            card = ctk.CTkFrame(
+                lista_shadow,
+                fg_color=theme.COLOR_CARD,
+                corner_radius=14,
+                border_width=1,
+                border_color=theme.COLOR_BORDER,
+            )
+            card.pack(fill="x", pady=7)
+
+            ctk.CTkLabel(
+                card,
+                text=titulo,
+                font=("Arial", 15, "bold"),
+                text_color=theme.COLOR_TEXT,
+                anchor="w",
+                justify="left",
+                wraplength=650,
+            ).pack(
+                fill="x",
+                anchor="w",
+                padx=16,
+                pady=(14, 2),
+            )
+
+            ctk.CTkLabel(
+                card,
+                text=f"{origem} • {data_hora}",
+                font=("Arial", 11),
+                text_color=theme.COLOR_TEXT_MUTED,
+            ).pack(
+                anchor="w",
+                padx=16,
+                pady=(0, 8),
+            )
+
+            corpo = ctk.CTkFrame(
+                card,
+                fg_color=theme.COLOR_CARD_HOVER,
+                corner_radius=10,
+            )
+            corpo.pack(
+                fill="x",
+                padx=16,
+                pady=(0, 8),
+            )
+
+            ctk.CTkLabel(
+                corpo,
+                text=(
+                    f"Preço: {_fmt_preco(oportunidade.get('preco'))}"
+                    "   •   FIPE: "
+                    f"{_fmt_preco(oportunidade.get('valor_fipe'))}"
+                    "   •   Diferença: "
+                    f"{_fmt_percentual(oportunidade.get('diferenca_fipe_percentual'))}"
+                ),
+                font=("Arial", 12),
+                text_color=theme.COLOR_TEXT,
+                anchor="w",
+                justify="left",
+                wraplength=900,
+            ).pack(
+                anchor="w",
+                padx=12,
+                pady=(10, 4),
+            )
+
+            classificacao_missao = oportunidade.get(
+                "classificacao_missao", "-"
+            )
+
+            ctk.CTkLabel(
+                corpo,
+                text=(
+                    "Missão (oficial): "
+                    f"{_fmt_score(oportunidade.get('score_missao'))}"
+                    f"  •  {classificacao_missao}"
+                ),
+                font=("Arial", 12, "bold"),
+                text_color=theme.COLOR_TEXT,
+                anchor="w",
+            ).pack(
+                anchor="w",
+                padx=12,
+                pady=(0, 10),
+            )
+
+            tem_shadow = (
+                "score_missao" in oportunidade
+                and oportunidade.get("score_missao") is not None
+            )
+
+            bloco_experimental = ctk.CTkFrame(
+                card,
+                fg_color=theme.COLOR_CARD,
+                corner_radius=10,
+                border_width=1,
+                border_color=theme.COLOR_TEXT_MUTED,
+            )
+            bloco_experimental.pack(
+                fill="x",
+                padx=16,
+                pady=(0, 14),
+            )
+
+            ctk.CTkLabel(
+                bloco_experimental,
+                text="SHADOW MODE • EXPERIMENTAL",
+                font=("Arial", 9, "bold"),
+                text_color=theme.COLOR_TEXT_MUTED,
+            ).pack(
+                anchor="w",
+                padx=12,
+                pady=(9, 2),
+            )
+
+            if not tem_shadow:
+                ctk.CTkLabel(
+                    bloco_experimental,
+                    text=(
+                        "Experimental: Não calculado (registro "
+                        "anterior ao shadow mode)"
+                    ),
+                    font=("Arial", 12),
+                    text_color=theme.COLOR_TEXT_MUTED,
+                ).pack(
+                    anchor="w",
+                    padx=12,
+                    pady=(0, 10),
+                )
+
+                continue
+
+            score_financeiro = oportunidade.get("score_financeiro")
+            classificacao_financeira = oportunidade.get(
+                "classificacao_financeira", "SEM DADOS"
+            )
+
+            if score_financeiro is None:
+                if str(classificacao_financeira).strip().upper() == "SEM DADOS":
+                    texto_financeiro = "Financeiro: SEM DADOS"
+                else:
+                    texto_financeiro = (
+                        f"Financeiro: SEM DADOS ({classificacao_financeira})"
+                    )
+            else:
+                texto_financeiro = (
+                    f"Financeiro: {_fmt_score(score_financeiro)}"
+                    f"  •  {classificacao_financeira}"
+                )
+
+            ctk.CTkLabel(
+                bloco_experimental,
+                text=texto_financeiro,
+                font=("Arial", 12),
+                text_color=theme.COLOR_TEXT_MUTED,
+            ).pack(
+                anchor="w",
+                padx=12,
+                pady=(0, 2),
+            )
+
+            classificacao_final_experimental = oportunidade.get(
+                "classificacao_final_experimental", "-"
+            )
+
+            resultado_comparacao = comparar_classificacao_shadow(
+                classificacao_missao,
+                classificacao_final_experimental,
+            )
+
+            indicadores_direcao = {
+                "SUBIU": ("↑ SUBIU", theme.COLOR_GREEN),
+                "MANTEVE": ("= MANTEVE", theme.COLOR_TEXT_MUTED),
+                "CAIU": ("↓ CAIU", "#FF5C5C"),
+            }
+            texto_indicador, cor_indicador = indicadores_direcao.get(
+                resultado_comparacao,
+                ("", theme.COLOR_TEXT_MUTED),
+            )
+
+            linha_experimental = ctk.CTkFrame(
+                bloco_experimental,
+                fg_color="transparent",
+            )
+            linha_experimental.pack(
+                fill="x",
+                padx=12,
+                pady=(0, 2),
+            )
+
+            ctk.CTkLabel(
+                linha_experimental,
+                text=(
+                    "Experimental: "
+                    f"{_fmt_score(oportunidade.get('score_final_experimental'))}"
+                    f"  •  {classificacao_final_experimental}"
+                ),
+                font=("Arial", 12, "bold"),
+                text_color=theme.COLOR_TEXT,
+                anchor="w",
+            ).pack(
+                side="left",
+            )
+
+            if texto_indicador:
+                ctk.CTkLabel(
+                    linha_experimental,
+                    text=texto_indicador,
+                    font=("Arial", 11, "bold"),
+                    text_color=cor_indicador,
+                ).pack(
+                    side="left",
+                    padx=(10, 0),
+                )
+
+            ctk.CTkLabel(
+                bloco_experimental,
+                text=(
+                    "Preço-alvo: "
+                    f"{_fmt_preco(oportunidade.get('preco_alvo_negociacao'))}"
+                ),
+                font=("Arial", 12),
+                text_color=theme.COLOR_TEXT_MUTED,
+            ).pack(
+                anchor="w",
+                padx=12,
+                pady=(2, 10),
+            )
 
 
     def tela_configuracoes(self):
