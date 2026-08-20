@@ -164,6 +164,37 @@ def registrar_decisao_oportunidade(
             "preco_maximo_recomendado",
             0,
         ),
+        # Shadow mode (core/financial_scoring.py) -- campos
+        # experimentais, apenas para calibração. "score" e
+        # "recomendacao" acima continuam sendo os oficiais, inalterados.
+        "score_missao": oportunidade.get(
+            "score_missao",
+            oportunidade.get("score", 0),
+        ),
+        "classificacao_missao": oportunidade.get(
+            "classificacao_missao",
+            oportunidade.get("recomendacao", ""),
+        ),
+        "score_financeiro": oportunidade.get(
+            "score_financeiro",
+            None,
+        ),
+        "classificacao_financeira": oportunidade.get(
+            "classificacao_financeira",
+            "SEM DADOS",
+        ),
+        "score_final_experimental": oportunidade.get(
+            "score_final_experimental",
+            oportunidade.get("score", 0),
+        ),
+        "classificacao_final_experimental": oportunidade.get(
+            "classificacao_final_experimental",
+            oportunidade.get("recomendacao", ""),
+        ),
+        "preco_alvo_negociacao": oportunidade.get(
+            "preco_alvo_negociacao",
+            0,
+        ),
     }
 
     decisoes.append(decisao)

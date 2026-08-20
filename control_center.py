@@ -984,6 +984,132 @@ class THIAMotosApp(ctk.CTk):
                     pady=(0, 10)
                 )
 
+            bloco_financeiro_experimental_op = ctk.CTkFrame(
+                card,
+                fg_color=theme.COLOR_CARD_HOVER,
+                corner_radius=10,
+            )
+            bloco_financeiro_experimental_op.pack(
+                fill="x",
+                padx=16,
+                pady=(0, 8),
+            )
+
+            ctk.CTkLabel(
+                bloco_financeiro_experimental_op,
+                text="ANÁLISE FINANCEIRA • EXPERIMENTAL",
+                font=("Arial", 10, "bold"),
+                text_color=theme.COLOR_TEXT_MUTED,
+            ).pack(
+                anchor="w",
+                padx=12,
+                pady=(10, 2),
+            )
+
+            ctk.CTkLabel(
+                bloco_financeiro_experimental_op,
+                text=(
+                    "Não substitui o Score/Recomendação oficiais "
+                    "acima -- somente para calibração."
+                ),
+                font=("Arial", 9, "italic"),
+                text_color=theme.COLOR_TEXT_MUTED,
+            ).pack(
+                anchor="w",
+                padx=12,
+                pady=(0, 6),
+            )
+
+            score_financeiro_op = oportunidade.get("score_financeiro")
+
+            if score_financeiro_op is None:
+                if oportunidade.get("fipe_encontrada"):
+                    # A FIPE foi encontrada (ver bloco acima) mas este
+                    # registro é anterior ao shadow mode -- nunca
+                    # dizer "FIPE não disponível" aqui, seria falso.
+                    texto_sem_dados_op = (
+                        "Dados experimentais não calculados para "
+                        "este registro (anterior ao modo shadow)."
+                    )
+                else:
+                    texto_sem_dados_op = (
+                        "Score financeiro: SEM DADOS (FIPE não "
+                        "disponível para esta oportunidade)"
+                    )
+
+                ctk.CTkLabel(
+                    bloco_financeiro_experimental_op,
+                    text=texto_sem_dados_op,
+                    font=("Arial", 12),
+                    text_color=theme.COLOR_TEXT_MUTED,
+                ).pack(
+                    anchor="w",
+                    padx=12,
+                    pady=(0, 10),
+                )
+            else:
+                classificacao_financeira_op = oportunidade.get(
+                    "classificacao_financeira", "SEM DADOS"
+                )
+                score_final_experimental_op = oportunidade.get(
+                    "score_final_experimental", score_numerico
+                )
+                classificacao_final_experimental_op = oportunidade.get(
+                    "classificacao_final_experimental", recomendacao
+                )
+                preco_alvo_op = oportunidade.get("preco_alvo_negociacao")
+
+                try:
+                    preco_alvo_formatado_op = (
+                        f"R$ {float(preco_alvo_op):,.2f}"
+                        .replace(",", "X")
+                        .replace(".", ",")
+                        .replace("X", ".")
+                    )
+                except (TypeError, ValueError):
+                    preco_alvo_formatado_op = "-"
+
+                ctk.CTkLabel(
+                    bloco_financeiro_experimental_op,
+                    text=(
+                        f"Score financeiro: {score_financeiro_op}/100  "
+                        f"•  Atratividade: {classificacao_financeira_op}"
+                    ),
+                    font=("Arial", 12),
+                    text_color=theme.COLOR_TEXT_MUTED,
+                ).pack(
+                    anchor="w",
+                    padx=12,
+                    pady=(0, 2),
+                )
+
+                ctk.CTkLabel(
+                    bloco_financeiro_experimental_op,
+                    text=(
+                        "Score final experimental: "
+                        f"{score_final_experimental_op}/100  "
+                        "•  Classificação experimental: "
+                        f"{classificacao_final_experimental_op}"
+                    ),
+                    font=("Arial", 12),
+                    text_color=theme.COLOR_TEXT_MUTED,
+                ).pack(
+                    anchor="w",
+                    padx=12,
+                    pady=(0, 2),
+                )
+
+                ctk.CTkLabel(
+                    bloco_financeiro_experimental_op,
+                    text=f"Preço-alvo: {preco_alvo_formatado_op}",
+                    font=("Arial", 12),
+                    text_color=theme.COLOR_TEXT_MUTED,
+                ).pack(
+                    anchor="w",
+                    padx=12,
+                    pady=(0, 10),
+                )
+
             if link:
                 ctk.CTkButton(
                     card,
@@ -3784,6 +3910,116 @@ class THIAMotosApp(ctk.CTk):
                     bloco_acao_decisao,
                     text=f"\u2714 {acao_decisao}",
                     font=("Arial", 11, "bold"),
+                    text_color=theme.COLOR_TEXT,
+                    anchor="w",
+                    justify="left",
+                    wraplength=950,
+                ).pack(
+                    fill="x",
+                    padx=12,
+                    pady=(0, 10),
+                )
+
+                score_financeiro_decisao = decisao.get(
+                    "score_financeiro"
+                )
+                classificacao_financeira_decisao = decisao.get(
+                    "classificacao_financeira",
+                    "SEM DADOS",
+                )
+                score_final_experimental_decisao = decisao.get(
+                    "score_final_experimental",
+                    score_decisao,
+                )
+                classificacao_final_experimental_decisao = decisao.get(
+                    "classificacao_final_experimental",
+                    recomendacao,
+                )
+                preco_alvo_negociacao_decisao = decisao.get(
+                    "preco_alvo_negociacao"
+                )
+
+                bloco_financeiro_experimental = ctk.CTkFrame(
+                    card_decisao,
+                    fg_color=theme.COLOR_CARD,
+                    corner_radius=10,
+                    border_width=1,
+                    border_color=theme.COLOR_TEXT_MUTED,
+                )
+                bloco_financeiro_experimental.pack(
+                    fill="x",
+                    padx=14,
+                    pady=(0, 9),
+                )
+
+                ctk.CTkLabel(
+                    bloco_financeiro_experimental,
+                    text=(
+                        "ANÁLISE FINANCEIRA • EXPERIMENTAL"
+                    ),
+                    font=("Arial", 9, "bold"),
+                    text_color=theme.COLOR_TEXT_MUTED,
+                ).pack(
+                    anchor="w",
+                    padx=12,
+                    pady=(9, 2),
+                )
+
+                ctk.CTkLabel(
+                    bloco_financeiro_experimental,
+                    text=(
+                        "Não substitui a classificação "
+                        "oficial acima -- somente para "
+                        "calibração."
+                    ),
+                    font=("Arial", 9, "italic"),
+                    text_color=theme.COLOR_TEXT_MUTED,
+                ).pack(
+                    anchor="w",
+                    padx=12,
+                    pady=(0, 6),
+                )
+
+                if score_financeiro_decisao is None:
+                    # Pode ser FIPE genuinamente indisponível ou um
+                    # registro anterior ao shadow mode -- este dict
+                    # (agent_decisions.json) não guarda fipe_encontrada,
+                    # então o texto fica neutro para não afirmar uma
+                    # causa que não dá para confirmar aqui.
+                    texto_financeiro_experimental = (
+                        "Dados financeiros experimentais "
+                        "indisponíveis para este registro (SEM "
+                        "DADOS)."
+                    )
+                else:
+                    if isinstance(
+                        preco_alvo_negociacao_decisao,
+                        (int, float),
+                    ):
+                        texto_preco_alvo_experimental = (
+                            f"R$ {preco_alvo_negociacao_decisao:,.2f}"
+                        )
+                    else:
+                        texto_preco_alvo_experimental = "-"
+
+                    texto_financeiro_experimental = (
+                        f"Score financeiro: "
+                        f"{score_financeiro_decisao}/100  "
+                        f"•  Atratividade: "
+                        f"{classificacao_financeira_decisao}\n"
+                        f"Score final experimental: "
+                        f"{score_final_experimental_decisao}/100  "
+                        f"•  Classificação "
+                        f"experimental: "
+                        f"{classificacao_final_experimental_decisao}\n"
+                        f"Preço-alvo: "
+                        f"{texto_preco_alvo_experimental}"
+                    )
+
+                ctk.CTkLabel(
+                    bloco_financeiro_experimental,
+                    text=texto_financeiro_experimental,
+                    font=("Arial", 11),
                     text_color=theme.COLOR_TEXT,
                     anchor="w",
                     justify="left",

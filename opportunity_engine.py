@@ -10,6 +10,13 @@ from typing import Any
 from mission_manager import listar_missoes
 from core.paths import anuncios_encontrados_path, mission_matches_path
 from fipe_matching import enriquecer_com_fipe
+from core.financial_scoring import (
+    calcular_preco_alvo_negociacao,
+    calcular_score_final,
+    calcular_score_financeiro,
+    classificar_atratividade_financeira,
+    classificar_final,
+)
 
 
 ANUNCIOS_PATH = anuncios_encontrados_path()
@@ -359,6 +366,63 @@ def buscar_oportunidades(
                     "fipe_encontrada"
                 ]
                 oportunidade["fipe_erro"] = fipe["fipe_erro"]
+
+                # Shadow mode (core/financial_scoring.py): calcula um
+                # score financeiro/final EXPERIMENTAL a partir da FIPE,
+                # só para calibração -- nunca sobrescreve "score" nem
+                # "recomendacao" (que continuam sendo exatamente o
+                # score_missao/classificacao_missao de sempre, para
+                # compatibilidade com Control Center, Analytics e
+                # Memória da IA já existentes).
+                dfp_para_financeiro = (
+                    oportunidade["diferenca_fipe_percentual"]
+                    if oportunidade["fipe_encontrada"]
+                    else None
+                )
+
+                score_financeiro = calcular_score_financeiro(
+                    dfp_para_financeiro
+                )
+                classificacao_financeira = (
+                    classificar_atratividade_financeira(
+                        dfp_para_financeiro
+                    )
+                )
+                score_final_experimental = calcular_score_final(
+                    oportunidade["score"], score_financeiro
+                )
+                classificacao_final_experimental = (
+                    classificar_final(score_final_experimental)
+                    if score_financeiro is not None
+                    else oportunidade["recomendacao"]
+                )
+
+                oportunidade["score_missao"] = oportunidade["score"]
+                oportunidade["classificacao_missao"] = oportunidade[
+                    "recomendacao"
+                ]
+                oportunidade["score_financeiro"] = score_financeiro
+                oportunidade["classificacao_financeira"] = (
+                    classificacao_financeira
+                )
+                oportunidade["score_final_experimental"] = (
+                    score_final_experimental
+                )
+                oportunidade["classificacao_final_experimental"] = (
+                    classificacao_final_experimental
+                )
+                oportunidade["preco_alvo_negociacao"] = (
+                    calcular_preco_alvo_negociacao(
+                        preco_anuncio=oportunidade["preco"],
+                        limite_final=oportunidade[
+                            "preco_maximo_recomendado"
+                        ],
+                        primeira_oferta_missao=oportunidade[
+                            "primeira_oferta_sugerida"
+                        ],
+                        valor_fipe=oportunidade["valor_fipe"],
+                    )
+                )
 
                 registrar_decisao_oportunidade(
                     oportunidade
