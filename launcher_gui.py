@@ -2,6 +2,7 @@ import shutil
 import subprocess
 import sys
 import webbrowser
+from datetime import datetime
 from pathlib import Path
 
 import customtkinter as ctk
@@ -51,7 +52,29 @@ class Launcher(ctk.CTk):
         self.resizable(False, False)
         self.configure(fg_color="#0B1220")
 
+        self.sync_status_after_id = None
+
         self.criar_interface()
+        self.protocol("WM_DELETE_WINDOW", self.ao_fechar)
+
+        # Consulta imediata ao abrir -- nao espera o primeiro ciclo de
+        # 15s do polling para mostrar o primeiro estado.
+        self.atualizar_status_sync()
+
+    def ao_fechar(self):
+        """
+        Fecha o Launcher sem afetar nenhum processo externo -- nem o
+        robo, nem o sincronizador AWS continuam rodando normalmente.
+        So cancela o polling local e destroi a janela.
+        """
+        if self.sync_status_after_id is not None:
+            try:
+                self.after_cancel(self.sync_status_after_id)
+            except Exception:
+                pass
+            self.sync_status_after_id = None
+
+        self.destroy()
 
     def criar_interface(self):
         container = ctk.CTkFrame(
@@ -111,7 +134,31 @@ class Launcher(ctk.CTk):
             text="● Sistema pronto",
             font=("Arial", 14, "bold"),
             text_color="#22C55E",
-        ).pack(pady=14)
+        ).pack(pady=(14, 4))
+
+        self.label_status_sync = ctk.CTkLabel(
+            status,
+            text="Sync AWS: verificando...",
+            font=("Arial", 13, "bold"),
+            text_color="#9CA3AF",
+        )
+        self.label_status_sync.pack(pady=(0, 2))
+
+        self.label_pid_sync = ctk.CTkLabel(
+            status,
+            text="",
+            font=("Arial", 11),
+            text_color="#6B7280",
+        )
+        self.label_pid_sync.pack(pady=(0, 6))
+
+        self.label_ultima_verificacao_aws = ctk.CTkLabel(
+            status,
+            text="Última verificação AWS: --",
+            font=("Arial", 11),
+            text_color="#6B7280",
+        )
+        self.label_ultima_verificacao_aws.pack(pady=(0, 14))
 
         self.criar_botao(
             container,
@@ -157,6 +204,12 @@ class Launcher(ctk.CTk):
 
         self.criar_botao(
             container,
+            "Verificar AWS agora",
+            self.verificar_aws_manual,
+        )
+
+        self.criar_botao(
+            container,
             "Abrir Painel AWS",
             self.abrir_painel,
         )
@@ -180,7 +233,7 @@ class Launcher(ctk.CTk):
             corner_radius=12,
             fg_color="#374151",
             hover_color="#4B5563",
-            command=self.destroy,
+            command=self.ao_fechar,
         ).pack(
             fill="x",
             padx=24,
@@ -385,6 +438,165 @@ class Launcher(ctk.CTk):
                 "Não há robô em execução no momento.",
                 "#9CA3AF",
             )
+
+    def atualizar_status_sync(self):
+        """
+        Consulta o status LOCAL do sincronizador (nunca SSH) e atualiza
+        os labels ja existentes via .configure() -- nunca recria
+        widgets. Reagenda a si mesmo a cada 15s via self.after(), nunca
+        time.sleep(). Se o processo morreu (ou a janela do PowerShell
+        foi fechada manualmente), o proximo ciclo ja reflete "Parado"
+        sozinho -- nao reinicia nada automaticamente.
+        """
+        self.sync_status_after_id = None
+
+        try:
+            if not self.label_status_sync.winfo_exists():
+                return
+        except Exception:
+            return
+
+        status = aws_sync_process.verificar_status(SYNC_SCRIPT)
+
+        if status.rodando:
+            pids_texto = ", ".join(str(pid) for pid in status.pids)
+            self.label_status_sync.configure(
+                text="Sync AWS: 🟢 Rodando",
+                text_color="#22C55E",
+            )
+            self.label_pid_sync.configure(
+                text=f"PID Sync: {pids_texto}"
+            )
+        else:
+            self.label_status_sync.configure(
+                text="Sync AWS: 🔴 Parado",
+                text_color="#EF4444",
+            )
+            self.label_pid_sync.configure(text="")
+
+        self.sync_status_after_id = self.after(
+            15000,
+            self.atualizar_status_sync,
+        )
+
+    def verificar_aws_manual(self):
+        """
+        Consulta manual, sob clique explicito -- UMA chamada SSH,
+        nunca repetida automaticamente. Nao e uma "ultima
+        sincronizacao": e so a ultima vez que alguem clicou aqui e
+        consultou o arquivo remoto.
+        """
+        self.label_ultima_verificacao_aws.configure(
+            text="Última verificação AWS: consultando...",
+            text_color="#9CA3AF",
+        )
+        self.update_idletasks()
+
+        agora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+        if not AWS_KEY.exists():
+            self.label_ultima_verificacao_aws.configure(
+                text=f"Última verificação AWS: {agora} (falhou)",
+                text_color="#EF4444",
+            )
+            self._mostrar_feedback(
+                "Chave AWS não encontrada",
+                f"Não foi possível verificar: chave SSH ausente em\n{AWS_KEY}",
+                "#EF4444",
+            )
+            return
+
+        comando = [
+            "ssh",
+            "-i", str(AWS_KEY),
+            "-o", "ConnectTimeout=8",
+            "-o", "BatchMode=yes",
+            "-o", "StrictHostKeyChecking=accept-new",
+            f"ubuntu@{AWS_HOST}",
+            (
+                "python3 -c \"import json,os; "
+                "p='/home/ubuntu/IA_Motos_PROD/interface/anuncios_encontrados.json'; "
+                "d=json.load(open(p,encoding='utf-8-sig')); "
+                "print(len(d)); print(int(os.path.getmtime(p)))\""
+            ),
+        ]
+
+        try:
+            resultado = subprocess.run(
+                comando,
+                capture_output=True,
+                text=True,
+                timeout=15,
+            )
+        except subprocess.TimeoutExpired:
+            self.label_ultima_verificacao_aws.configure(
+                text=f"Última verificação AWS: {agora} (timeout)",
+                text_color="#EF4444",
+            )
+            self._mostrar_feedback(
+                "Verificação AWS: tempo esgotado",
+                "O servidor não respondeu a tempo (timeout). "
+                "Tente novamente mais tarde.",
+                "#EF4444",
+            )
+            return
+        except OSError as erro:
+            self.label_ultima_verificacao_aws.configure(
+                text=f"Última verificação AWS: {agora} (falhou)",
+                text_color="#EF4444",
+            )
+            self._mostrar_feedback(
+                "Verificação AWS falhou",
+                f"Não foi possível executar SSH: {erro}",
+                "#EF4444",
+            )
+            return
+
+        if resultado.returncode != 0:
+            self.label_ultima_verificacao_aws.configure(
+                text=f"Última verificação AWS: {agora} (falhou)",
+                text_color="#EF4444",
+            )
+            detalhe = (resultado.stderr or "erro desconhecido").strip()
+            self._mostrar_feedback(
+                "Verificação AWS falhou",
+                f"O servidor não respondeu como esperado:\n{detalhe[:300]}",
+                "#EF4444",
+            )
+            return
+
+        saida = (resultado.stdout or "").strip().splitlines()
+
+        try:
+            total_registros = int(saida[0])
+            mtime_epoch = int(saida[1])
+            mtime_texto = datetime.fromtimestamp(mtime_epoch).strftime(
+                "%d/%m/%Y %H:%M:%S"
+            )
+        except (ValueError, IndexError):
+            self.label_ultima_verificacao_aws.configure(
+                text=f"Última verificação AWS: {agora} (falhou)",
+                text_color="#EF4444",
+            )
+            self._mostrar_feedback(
+                "Verificação AWS: resposta inesperada",
+                "Não foi possível interpretar a resposta do servidor.",
+                "#EF4444",
+            )
+            return
+
+        self.label_ultima_verificacao_aws.configure(
+            text=f"Última verificação AWS: {agora}",
+            text_color="#6B7280",
+        )
+
+        self._mostrar_feedback(
+            "Verificação AWS concluída",
+            f"Registros no arquivo remoto: {total_registros}\n"
+            f"mtime remoto: {mtime_texto}\n"
+            f"Verificado em: {agora}",
+            "#22C55E",
+        )
 
     def iniciar_sync(self):
         resultado = aws_sync_process.iniciar(SYNC_SCRIPT, BASE_DIR)
