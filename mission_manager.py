@@ -1,19 +1,14 @@
 ﻿import json
 from datetime import datetime
-from pathlib import Path
 from typing import Any
 
-from core.paths import mission_matches_path
-
-
-BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR / "data"
-MISSIONS_FILE = DATA_DIR / "missions.json"
+from core.paths import mission_matches_path, missions_path
 
 
 def garantir_arquivo() -> None:
     """Cria a pasta e o arquivo inicial caso ainda não existam."""
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    MISSIONS_FILE = missions_path()
+    MISSIONS_FILE.parent.mkdir(parents=True, exist_ok=True)
 
     if not MISSIONS_FILE.exists():
         MISSIONS_FILE.write_text("[]", encoding="utf-8")
@@ -22,6 +17,7 @@ def garantir_arquivo() -> None:
 def carregar_missoes() -> list[dict[str, Any]]:
     """Carrega e valida a lista de missões salva no JSON."""
     garantir_arquivo()
+    MISSIONS_FILE = missions_path()
 
     try:
         with MISSIONS_FILE.open("r", encoding="utf-8") as arquivo:
@@ -48,6 +44,7 @@ def carregar_missoes() -> list[dict[str, Any]]:
 def salvar_missoes(missoes: list[dict[str, Any]]) -> None:
     """Salva a lista completa de missões no arquivo JSON."""
     garantir_arquivo()
+    MISSIONS_FILE = missions_path()
 
     arquivo_temporario = MISSIONS_FILE.with_suffix(".json.tmp")
 

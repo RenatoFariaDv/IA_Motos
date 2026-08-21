@@ -35,6 +35,10 @@ def agent_decisions_path() -> Path:
     return data_dir() / "agent_decisions.json"
 
 
+def missions_path() -> Path:
+    return data_dir() / "missions.json"
+
+
 def mission_matches_path() -> Path:
     return data_dir() / "mission_matches.json"
 
