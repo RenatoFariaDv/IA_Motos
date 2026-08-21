@@ -5,6 +5,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Ambientes virtuais
+venv/
+.venv/
+
 # Cache de ferramentas
 .pytest_cache/
 .mypy_cache/
