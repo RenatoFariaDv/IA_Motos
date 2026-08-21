@@ -172,7 +172,29 @@ Hoje existem validações offline (checagem de imports e compilação dos módul
 
 ## Interface
 
-O sistema tem três superfícies visuais: o **Launcher** (janela de entrada), o **Control Center** (operação desktop completa, incluindo missões, memória de decisões, analytics e calibração financeira) e o **painel web** (consulta remota dos anúncios coletados). Capturas de tela atualizadas serão adicionadas em uma próxima revisão da documentação.
+### Launcher
+
+<p align="center"><img src="assets/images/launcher-dashboard.png" width="320"></p>
+
+Janela de entrada do sistema — inicia/para o robô e a sincronização AWS, com status ao vivo.
+
+### Control Center
+
+<p align="center"><img src="assets/images/control-center-dashboard.png" width="100%"></p>
+
+Painel de operação desktop, com ações rápidas e o histórico de anúncios coletados.
+
+### Calibração Financeira
+
+<p align="center"><img src="assets/images/financial-calibration.png" width="100%"></p>
+
+**Shadow Mode** — o score financeiro e o score experimental são calculados em paralelo ao score oficial de missão, apenas para observabilidade. Eles **não substituem** a classificação oficial (`score`/`recomendacao`), que continua vindo exclusivamente de `core/opportunity_scoring.py`.
+
+### Painel Web
+
+<p align="center"><img src="assets/images/web-marketplace-dashboard.png" width="100%"></p>
+
+Apresenta os anúncios coletados na OLX, com busca, contadores e as fotos originais dos anúncios.
 
 ## Roadmap
 
