@@ -3041,19 +3041,20 @@ class THIAMotosApp(ctk.CTk):
                 0,
             )
             primeira_oferta = decisao.get(
-                "primeira_oferta_sugerida",
-                0,
+                "primeira_oferta_sugerida"
             )
             preco_maximo = decisao.get(
-                "preco_maximo_recomendado",
-                0,
+                "preco_maximo_recomendado"
             )
 
             def formatar_moeda(valor):
+                if valor is None:
+                    return "N\u00e3o dispon\u00edvel"
+
                 try:
                     valor = float(valor)
                 except (TypeError, ValueError):
-                    valor = 0.0
+                    return "N\u00e3o dispon\u00edvel"
 
                 return (
                     f"R$ {valor:,.2f}"
@@ -3064,12 +3065,43 @@ class THIAMotosApp(ctk.CTk):
 
             texto_financeiro = (
                 "Pre\u00e7o do an\u00fancio: "
-                f"{formatar_moeda(preco)}\n"
+                f"{formatar_moeda(preco)}\n\n"
+                "Recomenda\u00e7\u00e3o para este an\u00fancio:\n"
                 "Primeira oferta sugerida: "
                 f"{formatar_moeda(primeira_oferta)}\n"
                 "Pre\u00e7o m\u00e1ximo recomendado: "
                 f"{formatar_moeda(preco_maximo)}"
             )
+
+            # Estrategia GERAL da missao (nao especifica deste anuncio) --
+            # buscada ao vivo em missions.json pelo missao_id da decisao,
+            # para funcionar tanto em registros novos quanto antigos (que
+            # nao guardam primeira_oferta_missao/limite_final_missao).
+            # Se a missao nao existir mais, a secao e omitida -- nunca
+            # inventa um valor.
+            try:
+                missoes_atuais = listar_missoes()
+            except Exception:
+                missoes_atuais = []
+
+            missao_relacionada = next(
+                (
+                    m
+                    for m in missoes_atuais
+                    if isinstance(m, dict)
+                    and m.get("id") == decisao.get("missao_id")
+                ),
+                None,
+            )
+
+            if missao_relacionada:
+                texto_financeiro += (
+                    "\n\nEstrat\u00e9gia da miss\u00e3o:\n"
+                    "Primeira oferta da miss\u00e3o: "
+                    f"{formatar_moeda(missao_relacionada.get('primeira_oferta'))}\n"
+                    "Limite da miss\u00e3o: "
+                    f"{formatar_moeda(missao_relacionada.get('limite_final'))}"
+                )
 
             adicionar_secao(
                 "Dados financeiros",

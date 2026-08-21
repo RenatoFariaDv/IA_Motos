@@ -347,6 +347,16 @@ def buscar_oportunidades(
                 oportunidade["preco_maximo_recomendado"] = analise[
                     "preco_maximo_recomendado"
                 ]
+                # Estrategia GERAL da missao (nao limitada pelo preco do
+                # anuncio) -- preservada separadamente para nao se perder
+                # quando primeira_oferta_sugerida/preco_maximo_recomendado
+                # passam a ser recomendacoes especificas deste anuncio.
+                oportunidade["primeira_oferta_missao"] = analise[
+                    "primeira_oferta_missao"
+                ]
+                oportunidade["limite_final_missao"] = analise[
+                    "limite_final_missao"
+                ]
                 oportunidade["checklist"] = analise["checklist"]
 
                 # Enriquecimento independente com FIPE: roda só depois
@@ -411,14 +421,19 @@ def buscar_oportunidades(
                 oportunidade["classificacao_final_experimental"] = (
                     classificacao_final_experimental
                 )
+                # Usa a estrategia ORIGINAL da missao (nao os valores ja
+                # limitados pelo preco deste anuncio) -- calcular_preco_
+                # alvo_negociacao() ja aplica seu proprio min(preco_anuncio,
+                # ...); aplicar dupla limitacao aqui mudaria o resultado do
+                # Shadow Mode.
                 oportunidade["preco_alvo_negociacao"] = (
                     calcular_preco_alvo_negociacao(
                         preco_anuncio=oportunidade["preco"],
                         limite_final=oportunidade[
-                            "preco_maximo_recomendado"
+                            "limite_final_missao"
                         ],
                         primeira_oferta_missao=oportunidade[
-                            "primeira_oferta_sugerida"
+                            "primeira_oferta_missao"
                         ],
                         valor_fipe=oportunidade["valor_fipe"],
                     )

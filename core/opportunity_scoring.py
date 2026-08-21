@@ -664,8 +664,49 @@ def analisar_oportunidade(
 
     # Novos campos extras
     confianca = int(score)
-    primeira_oferta_sugerida = primeira_oferta
-    preco_maximo_recomendado = limite_final
+
+    # Recomendacao especifica para ESTE anuncio -- nunca pode ultrapassar
+    # o preco pedido pelo vendedor (requisito fundamental). `primeira_oferta`
+    # e `limite_final` (acima) continuam representando a estrategia GERAL
+    # da missao, preservados sem alteracao no retorno como
+    # primeira_oferta_missao/limite_final_missao. Nunca inventa um valor
+    # quando a entrada esta ausente ou zerada -- nesses casos o campo fica
+    # None em vez de um numero fabricado.
+    if preco <= 0:
+        primeira_oferta_sugerida = None
+        preco_maximo_recomendado = None
+    else:
+        preco_maximo_recomendado = (
+            min(limite_final, preco) if limite_final > 0 else None
+        )
+
+        if primeira_oferta <= 0:
+            primeira_oferta_sugerida = None
+        elif preco >= primeira_oferta:
+            # Anuncio dentro (ou acima) da abertura planejada da missao --
+            # a abertura continua valendo como esta, sem precisar reduzir.
+            primeira_oferta_sugerida = primeira_oferta
+        elif limite_final > 0:
+            # Anuncio mais barato que a propria abertura planejada da
+            # missao: em vez de colapsar oferta e teto no mesmo valor
+            # (perdendo a nocao de faixa de negociacao), preserva a
+            # proporcao que a missao ja definiu entre abertura e limite,
+            # aplicada sobre o teto ja calculado para ESTE anuncio. Nao
+            # inventa um percentual novo -- reaproveita a propria
+            # estrategia configurada pelo usuario. O min() final garante
+            # o requisito fundamental mesmo se uma missao antiga tiver
+            # abertura > limite (dado inconsistente que a validacao atual
+            # de mission_manager.py deveria impedir, mas nao e garantido
+            # para missoes ja existentes).
+            proporcao = primeira_oferta / limite_final
+            primeira_oferta_sugerida = min(
+                preco_maximo_recomendado,
+                preco_maximo_recomendado * proporcao,
+            )
+        else:
+            # Sem limite_final para calcular uma proporcao -- nao inventa
+            # proporcao nenhuma, so garante o teto obrigatorio.
+            primeira_oferta_sugerida = min(primeira_oferta, preco)
 
     # Checklist curto, organizado e sem duplica??es
     checklist: list[str] = []
@@ -729,8 +770,8 @@ def analisar_oportunidade(
         "preco": preco,
         "preco_formatado": formatar_preco(preco),
         "orcamento": orcamento,
-        "primeira_oferta": primeira_oferta,
-        "limite_final": limite_final,
+        "primeira_oferta_missao": primeira_oferta,
+        "limite_final_missao": limite_final,
         "configuracoes_aplicadas": configuracoes,
         "confianca": confianca,
         "primeira_oferta_sugerida": primeira_oferta_sugerida,
