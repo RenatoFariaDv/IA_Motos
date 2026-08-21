@@ -1,4 +1,9 @@
 import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+
 from config_ml import mercado_livre_ativo
 from integrador_mercado_livre import obter_anuncios_mercado_livre
 
