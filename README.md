@@ -172,29 +172,14 @@ Hoje existem validações offline (checagem de imports e compilação dos módul
 
 ## Interface
 
-### Launcher
+O projeto possui interfaces dedicadas para operação e observabilidade:
 
-<p align="center"><img src="assets/images/launcher-dashboard.png" width="320"></p>
+- **Launcher** — janela de entrada do sistema, inicia/para o robô e a sincronização AWS, com status ao vivo;
+- **Control Center** — painel de operação desktop, com dashboard, missões, oportunidades e memória de decisões;
+- **Calibração Financeira** — observabilidade do Shadow Mode: o score financeiro e o score experimental são calculados em paralelo ao score oficial de missão, apenas para acompanhamento — nunca substituem a classificação oficial (`score`/`recomendacao`), que continua vindo exclusivamente de `core/opportunity_scoring.py`;
+- **Painel Web** — painel Flask para consulta dos anúncios sincronizados, com busca, contadores e as fotos originais dos anúncios coletados.
 
-Janela de entrada do sistema — inicia/para o robô e a sincronização AWS, com status ao vivo.
-
-### Control Center
-
-<p align="center"><img src="assets/images/control-center-dashboard.png" width="100%"></p>
-
-Painel de operação desktop, com ações rápidas e o histórico de anúncios coletados.
-
-### Calibração Financeira
-
-<p align="center"><img src="assets/images/financial-calibration.png" width="100%"></p>
-
-**Shadow Mode** — o score financeiro e o score experimental são calculados em paralelo ao score oficial de missão, apenas para observabilidade. Eles **não substituem** a classificação oficial (`score`/`recomendacao`), que continua vindo exclusivamente de `core/opportunity_scoring.py`.
-
-### Painel Web
-
-<p align="center"><img src="assets/images/web-marketplace-dashboard.png" width="100%"></p>
-
-Apresenta os anúncios coletados na OLX, com busca, contadores e as fotos originais dos anúncios.
+Screenshots atualizados serão adicionados futuramente, após uma nova revisão visual e de privacidade.
 
 ## Roadmap
 
